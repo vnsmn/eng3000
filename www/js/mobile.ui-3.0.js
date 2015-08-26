@@ -15,6 +15,7 @@ define('mobile.ui',
             var mapSources = new Hashtable();
             var sources;
             var sortName = 'sortn';
+            var soundListener;
 
             var filterToInt = function () {
                 var cnf = configuration.getData();
@@ -59,6 +60,9 @@ define('mobile.ui',
                     } else {
                         currentPlayID = null;
                         soundManager.stop();
+                        if (!isNullOrUndef(soundListener)) {
+                            soundListener(soundManager.getState());
+                        }
                     }
                 });
                 $rootScope.$broadcast("appUIApp.radio.sort1ID.init", {
@@ -479,6 +483,9 @@ define('mobile.ui',
                     });
                 }
                 soundManager.stop();
+                if (!isNullOrUndef(soundListener)) {
+                    soundListener(this.getStateSound());
+                }
             };
 
             this.pauseSound = function () {
@@ -502,6 +509,10 @@ define('mobile.ui',
             this.getStateSound = function () {
                 return soundManager.getState();
             };
+
+            this.setSoundListener = function (listener) {
+                soundListener = listener;
+            }
 
             this.doSoundError = function (error) {
                 self.stopSound.apply(self);
@@ -603,7 +614,7 @@ define('mobile.ui',
             $scope.ngChecked = function (item) {
                 return item.selected;
             };
-            $scope.fnselClick;
+            $scope.fnselClick = null;
             $scope.ngSelClick = function (item) {
                 var i = configuration.getData().wordID.indexOf(item.name);
                 item.selected = event.target.checked;
@@ -634,7 +645,7 @@ define('mobile.ui',
                 return !isNullOrUndef(item.prop.get('showrus')) && show;
             };
             $rootScope.$on('dictController_init', function (event, data) {
-                $scope.ngSelClick = data.ngSelClick;
+                $scope.fnselClick = data.ngSelClick;
                 $scope.items = [];
                 $scope.$apply();
                 $scope.items = data.items;

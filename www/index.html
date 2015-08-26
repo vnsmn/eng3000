@@ -166,6 +166,7 @@
                                 $compile('#htmlSetupID')($rootScope);
                                 setup.openDictionary(injector);
                             });
+                            setup.setSoundListener(soundListener);
                         });
                     });
                 }
@@ -234,6 +235,7 @@
         setup.pauseSound();
         $("#swimMenuID").hide();
         $("#menuID").show();
+        $("#menuID").show();
         $("#menuID").css("position", 'fixed');
         var w1 = $('#menuID').width();
         var w2 = $('#dictionaryID').width();
@@ -252,6 +254,13 @@
             $("#swimMenuID").removeClass('swim-menu-pause');
             $("#swimMenuID").addClass('swim-menu');
             scroll();
+        }
+    }
+
+    function soundListener(state) {
+        if (state == 'stop') {
+            $("#swimMenuID").removeClass('swim-menu-pause');
+            $("#swimMenuID").addClass('swim-menu');
         }
     }
 </script>
