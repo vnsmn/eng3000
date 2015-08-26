@@ -9,6 +9,7 @@ define('mobile-sound', ['jquery', 'mobile-file', 'mobile-iterator', 'mobile-medi
         var $callbackError;
         var $speed;
         var self = this;
+        var state = 'stop';
 
         this.setSources = function(sources) {
             $sources = sources;
@@ -47,6 +48,7 @@ define('mobile-sound', ['jquery', 'mobile-file', 'mobile-iterator', 'mobile-medi
                 loopPlay.call(self, context, false);
             });
             loopPlay.call(self, context, true);
+            state = 'play';
         };
 
         this.stop = function () {
@@ -56,6 +58,33 @@ define('mobile-sound', ['jquery', 'mobile-file', 'mobile-iterator', 'mobile-medi
                 return true;
             });
             $queue.splice(0, $queue.length);
+            state = 'stop';
+        };
+
+        this.pause = function () {
+            if ($queue.length > 0 && state == 'play') {
+                $queue.every(function (context) {
+                    context.iterator.setInterrupt();
+                    context.player.stop();
+                    return true;
+                });
+                state = 'pause';
+            }
+        };
+
+        this.resume = function () {
+            if ($queue.length > 0 && state == 'pause') {
+                $queue.every(function (context) {
+                    context.iterator.resetInterrupt();
+                    context.player.play();
+                    return true;
+                });
+                state = 'play';
+            }
+        };
+
+        this.getState = function() {
+            return state;
         };
 
         var loopPlay = function (context, isStart) {

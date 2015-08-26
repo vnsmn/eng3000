@@ -5,7 +5,11 @@ define('mobile-media', ['jquery', 'mobile-file', 'angular', 'angular-logger'], f
     function MediaPlayer() {
         MediaPlayer.prototype.play = function () {
         };
+        MediaPlayer.prototype.resume = function () {
+        };
         MediaPlayer.prototype.stop = function () {
+        };
+        MediaPlayer.prototype.pause = function () {
         };
         MediaPlayer.prototype.setCallbackError = function (callbackError) {
         };
@@ -28,11 +32,9 @@ define('mobile-media', ['jquery', 'mobile-file', 'angular', 'angular-logger'], f
         MobileMediaPlayer.prototype.setCallbackError = function (fn) {
             callbackError = fn;
         };
-
         MobileMediaPlayer.prototype.setSource = function (src) {
             file = src;
         };
-
         MobileMediaPlayer.prototype.play = function () {
             if (!isNullOrUndef(player) && player.src != file) {
                 player.release();
@@ -78,6 +80,14 @@ define('mobile-media', ['jquery', 'mobile-file', 'angular', 'angular-logger'], f
                 player.release();
             }
         };
+        MobileMediaPlayer.prototype.pause = function () {
+            if (!isNullOrUndef(player)) {
+                player.pause();
+            }
+        };
+        MobileMediaPlayer.prototype.resume = function () {
+            this.play();
+        };
         MobileMediaPlayer.prototype.setSpeed = function (speed) {
         };
         MobileMediaPlayer.prototype.setLoopPlay = function (fn) {
@@ -112,6 +122,15 @@ define('mobile-media', ['jquery', 'mobile-file', 'angular', 'angular-logger'], f
             if (!audio.get(0).paused) {
                 audio.get(0).pause();
             }
+        };
+        DesktopMediaPlayer.prototype.pause = function () {
+            audio.unbind();
+            if (!audio.get(0).paused) {
+                audio.get(0).pause();
+            }
+        };
+        DesktopMediaPlayer.prototype.resume = function () {
+            this.play();
         };
         DesktopMediaPlayer.prototype.setCallbackError = function (callbackError) {
         };

@@ -21,7 +21,7 @@ define('mobile.ui',
                 var i = cnf.pronID.sel == 'br' ? 1 : 2;
                 i = i + (cnf.playRusID.sel ? 4 : 0);
                 return i;
-            }
+            };
 
             var reloadSetup = function () {
                 $callStack.reset();
@@ -479,6 +479,28 @@ define('mobile.ui',
                     });
                 }
                 soundManager.stop();
+            };
+
+            this.pauseSound = function () {
+                soundManager.pause();
+            };
+
+            this.switchSound = function () {
+                var state = soundManager.getState();
+                if (state == 'stop') {
+                    return false;
+                }
+                if (state == 'play') {
+                    soundManager.pause();
+                    return true;
+                } else if (state == 'pause') {
+                    soundManager.resume();
+                }
+                return false;
+            };
+
+            this.getStateSound = function () {
+                return soundManager.getState();
             };
 
             this.doSoundError = function (error) {

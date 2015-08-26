@@ -25,11 +25,17 @@ define('mobile-iterator', ['jquery', 'angular', 'angular-logger'], function ($, 
             }
         };
         this.reset = function () {
-            index = -1;
+            if (!interrupt) {
+                index = -1;
+            }
         };
         this.setInterrupt = function() {
             //logger.debug('set interrupt.')
             interrupt = true;
+        }
+        this.resetInterrupt = function() {
+            //logger.debug('set interrupt.')
+            interrupt = false;
         }
     }
 

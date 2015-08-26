@@ -58,7 +58,7 @@
                 <a href="#" id="jump.{{item.name}}.ID" name="jump.{{item.name}}.ID"/>
                 <input type="checkbox" ng-checked="ngChecked(item)" ng-click="ngSelClick(item)">
             </td>
-            <td style="background-color: wheat;width:100%;cursor: pointer" onclick="setup.stopSound();scroll()">
+            <td style="background-color: wheat;width:100%;cursor: pointer" onclick="switchSound();">
                 <span style="cursor: pointer" name="trace.{{item.name}}.ID">{{item.prop.get('eng')}}</span>
             </td>
         </tr>
@@ -105,7 +105,7 @@
         waitSeconds: 15
     });
 
-    var setup;
+    var setup = null;
     require(["jquery", "mobile.ui", "angular", "mobile-file"],
             function ($, Setup, angular, FileManager) {
 
@@ -204,6 +204,9 @@
             });
 
     function scroll() {
+        if (setup != null && setup.getStateSound() == 'pause') {
+            return;
+        }
         var isSetupVisible = $('#htmlSetupID').is(':visible');
         $("#menuID").css("top", '0');
         $("#menuID").css("position", 'relative');
@@ -219,12 +222,16 @@
             var h1 = $('#swimMenuID').height();
             var h2 = $(window).height();
             $("#swimMenuID").css("top", '' + (h2/2 - h1) + 'px');
-            $("#swimMenuID").css("marginLeft", '' + (w2 - w1) + 'px');
+            $("#swimMenuID").css("marginLeft", '' + (w2 - w1) + 'px')
+            if (setup.getStateSound() != 'pause' && $( "#swimMenuID" ).hasClass( "swim-menu-pause" )) {
+                $("#swimMenuID").removeClass('swim-menu-pause');
+                $("#swimMenuID").addClass('swim-menu');
+            }
         }
     }
 
     function showMenu() {
-        setup.stopSound();
+        setup.pauseSound();
         $("#swimMenuID").hide();
         $("#menuID").show();
         $("#menuID").css("position", 'fixed');
@@ -232,8 +239,20 @@
         var w2 = $('#dictionaryID').width();
         var h1 = $('#menuID').height();
         var h2 = $(window).height();
-        $("#menuID").css("top", '' + (h2/2 - h1) + 'px');
+        $("#menuID").css("top", '' + (h2 / 2 - h1) + 'px');
         $("#menuID").css("marginLeft", '' + (w2 - w1) + 'px');
+    }
+
+    function switchSound() {
+        var isPause = setup.switchSound();
+        if (isPause) {
+            $("#swimMenuID").removeClass('swim-menu');
+            $("#swimMenuID").addClass('swim-menu-pause');
+        } else {
+            $("#swimMenuID").removeClass('swim-menu-pause');
+            $("#swimMenuID").addClass('swim-menu');
+            scroll();
+        }
     }
 </script>
 <div id="swimMenuID" class="swim-menu corner-all-7" style="display:none;" onclick="showMenu()"></div>
