@@ -1,0 +1,45 @@
+{
+  "Stage": {
+    "title": "Verbs of Stage"
+  },
+  "Stage.Beginning": {
+    "title": "Beginning",
+    "dict": [
+      ["start","start","stɑːt|stɑːrt"],
+      ["begin","begin","bɪˈɡɪn|bɪˈɡɪn"],
+      ["become","become",""]
+    ]
+  },
+  "Stage.Continuation": {
+    "title": "Continuation",
+    "dict": [
+      ["continue","continue","stɑːt|stɑːrt"],
+      ["go","go","bɪˈɡɪn|bɪˈɡɪn"],
+      ["go on","go on",""]
+    ]
+  },
+  "Stage.End": {
+    "title": "End",
+    "dict": [
+      ["finish","finish",""],
+      ["end","end",""],
+      ["complete","complete",""]
+    ]
+  },
+  "Stage.End2": {
+    "title": "End2",
+    "dict": [
+      ["finish","finish",""],
+      ["end","end",""],
+      ["complete","complete",""]
+    ]
+  },
+  "Stage.End3": {
+    "title": "End3",
+    "dict": [
+      ["finish","finish",""],
+      ["end","end",""],
+      ["complete","complete",""]
+    ]
+  }
+}

@@ -1,0 +1,148 @@
+span.label {
+    display: inline;
+    vertical-align: middle;
+}
+
+.eng {}
+.rus {}
+
+.media-play-start {
+    background-image: url('../img/play-start.png');
+    background-color: ghostwhite;
+    display: inline;
+    background-repeat:no-repeat;
+    background-position: left top;
+    background-size: cover;
+    float: left;
+    width: 35px;
+    height: 35px;
+    cursor: pointer;
+}
+
+.media-play-stop {
+    background-image: url('../img/play-stop.png');
+    background-color: ghostwhite;
+    background-repeat:no-repeat;
+    background-position: left top;
+    background-size: cover;
+    display: inline;
+    float: left;
+    width: 35px;
+    height: 35px;
+    cursor: pointer;
+}
+
+.media-play {
+    background-color: lightsteelblue;
+}
+
+.sort-123 {
+    background-image: url('../img/sort_up.png');
+    background-repeat:no-repeat;
+    background-position: center center;
+    background-size: 70%;
+    display: inline;
+    float: left;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}
+.sort-321 {
+    background-image: url('../img/sort_down.png');
+    background-repeat:no-repeat;
+    background-position: center center;
+    background-size: 70%;
+    display: inline;
+    float: left;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}
+.sort-132 {
+    background-image: url('../img/sort_no.png');
+    background-repeat:no-repeat;
+    background-position: center center;
+    background-size: 70%;
+    display: inline;
+    float: left;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}
+.sort-no {
+    background-image: url('../img/cross.png');
+    background-repeat:no-repeat;
+    background-position: center center;
+    background-size: 70%;
+    display: inline;
+    float: left;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}
+
+.show-ua {
+    background-image: url('../img/translate.png');
+    background-repeat:no-repeat;
+    background-position: center center;
+    background-size: 100%;
+    display: inline;
+    float: left;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}
+
+.show-ua-no {
+    background-image: url('../img/translate-no.png');
+    background-repeat:no-repeat;
+    background-position: center center;
+    background-size: 100%;
+    display: inline;
+    float: left;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}
+
+.play-ua {
+    background-image: url('../img/play-ua-2.png');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 70%;
+    display: inline;
+    float: left;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}
+
+.play-ua-no {
+    background-image: url('../img/play-ua-2-no.png');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 70%;
+    display: inline;
+    float: left;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}
+
+.corner-all-7 {
+    border-bottom-left-radius: 7px;
+    border-bottom-right-radius: 7px;
+    border-top-left-radius: 7px;
+    border-top-right-radius: 7px;
+}
+
+.input-text {
+    width: 100px;
+}
+
+.swim-menu {
+    width:50px;
+    height: 50px;
+    background-color: rgba(155, 155, 155, 0.30);
+    cursor: pointer;
+}

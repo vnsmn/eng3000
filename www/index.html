@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script type="text/javascript" src="cordova.js"></script>
+    <script type="text/javascript" src="cordova_plugins.js"></script>
+    <script type="text/javascript" src="js/jquery-2.1.4.js"></script>
+    <script type="text/javascript" src="js/jquery-ui.js"></script>
+    <script type="text/javascript" src="js/Math.uuid.js"></script>
+    <script type="text/javascript" src="js/require.js"></script>
+    <script type="text/javascript" src="js/hashset.js"></script>
+    <script type="text/javascript" src="js/hashtable.js"></script>
+    <script type="text/javascript" src="js/mobile.file-1.0.js"></script>
+    <link href="css/jquery-ui.css" rel="stylesheet" type="text/css"/>
+    <link href="css/angular-ui.css" rel="stylesheet" type="text/css"/>
+    <link href="css/index.css" rel="stylesheet" type="text/css"/>
+</head>
+</head>
+<body style="display: none">
+<table id='menuID' style="border: 1px solid ghostwhite;background: ghostwhite;">
+    <tr>
+        <td>
+            <enum-dir id='playID'></enum-dir>
+        </td>
+        <td>
+            <check-dir id="setupID"></check-dir>
+        </td>
+        <td id='tdSort1ID'>
+            <radio-dir id='sort1ID'></radio-dir>
+        </td>
+        <td id='tdSort2ID'>
+            <enum-dir id='sort2ID'></enum-dir>
+        </td>
+        <td id="tdShowRusDicID">
+            <check-dir id="showRusDicID"></check-dir>
+        </td>
+        <td id="tdPlayRusDicID">
+            <check-dir id="playRusDicID"></check-dir>
+        </td>
+        <td id="tdPronDicID">
+            <enum-dir id='pronDicID'></enum-dir>
+        </td>
+        <td id="tdInfoID">
+            <span id="infoID" style="font-size: smaller" ng-controller='infoController'>{{text}}</span>
+        </td>
+    </tr>
+</table>
+<div id='htmlSetupID' style='display: none'></div>
+
+<div id="dictionaryID" ng-controller='dictController'>
+    <table ng-repeat='item in items track by $index'
+           style="width:100%;border: 1px solid ghostwhite;background: lightsteelblue;">
+        <tr>
+            <td rowspan="3">
+                <enum-dir id='wordplayID{{$index}}' name='{{item.name}}' callback='setup.playWord'
+                          init='[{"title":"", "css":"media-play-start media-play"},{"title":"", "css":"media-play-stop media-play"}]'></enum-dir>
+            </td>
+            <td valign="top">
+                <a href="#" id="jump.{{item.name}}.ID" name="jump.{{item.name}}.ID"/>
+                <input type="checkbox" ng-checked="ngChecked(item)" ng-click="ngSelClick(item)">
+            </td>
+            <td style="background-color: wheat;width:100%;cursor: pointer" onclick="setup.stopSound();scroll()">
+                <span style="cursor: pointer" name="trace.{{item.name}}.ID">{{item.prop.get('eng')}}</span>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td style="background-color: lightgrey;width:100%;cursor: pointer" onclick="setup.stopSound()">
+                <span>{{item.prop.get('trans')}}</span>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td ng-show="ngShowRus(item)" style="background-color: lightcyan;width:100%;cursor: pointer"
+                onclick="setup.stopSound()">
+                <span style="font-size: x-small">{{item.prop.get('rus')}}</span>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div id="dialog-message" title=""></div>
+
+<script type="text/javascript" charset="utf-8">
+
+    require.config({
+        baseUrl: "js",
+        paths: {
+            "jquery": "jquery-2.1.4",
+            "jquery-ui": "jquery-ui",
+            "mobile-iterator": "mobile.iterator-1.0",
+            "mobile-media": "mobile.media-1.0",
+            "mobile-file": "mobile.file-1.0",
+            "mobile-synch": "mobile.synch-2.0",
+            "mobile-sound": "mobile.sound-3.0",
+            "mobile.ui": "mobile.ui-3.0",
+            "angular": "angular",
+            "angular-logger": "angular-logger",
+            "angular-ui": "angular-ui"
+        },
+        shim: {
+            "angular": {
+                exports: "angular"
+            }
+        },
+        waitSeconds: 15
+    });
+
+    var setup;
+    require(["jquery", "mobile.ui", "angular", "mobile-file"],
+            function ($, Setup, angular, FileManager) {
+
+                $(document).ready(function () {
+                    $(window).scroll(function () {
+                        scroll();
+                    });
+                    orientationChangeHandler();
+                    window.addEventListener("orientationchange", orientationChangeHandler);
+                    angular.bootstrap(document, ['app']);
+                    onLoad();
+                    var injector = angular.element(document.body).injector();
+                    injector.invoke(function ($rootScope) {
+                        $rootScope.$broadcast("appUIApp.check.setupID.init", {
+                            item: {title: ['setup', 'words'], selected: false}
+                        });
+                    });
+                    injector.invoke(function ($rootScope) {
+                        $rootScope.$on("appUIApp.check.setupID.selected", function (event, data) {
+                            if (data.selected) {
+                                $('#dictionaryID').hide();
+                                $('#playID').hide();
+                                $('#tdShowRusDicID').hide();
+                                $('#tdPlayRusDicID').hide();
+                                $('#tdPronDicID').hide();
+                                setup.closeDictionary();
+                                setup.openSetup(injector);
+                                $('#htmlSetupID').show();
+                            } else {
+                                $('#htmlSetupID').hide();
+                                setup.closeSetup();
+                                setup.openDictionary(injector);
+                                $('#dictionaryID').show();
+                                $('#playID').show();
+                                $('#tdShowRusDicID').show();
+                                $('#tdPlayRusDicID').show();
+                                $('#tdPronDicID').show();
+                            }
+                        });
+                    });
+                    $(document.body).show();
+                });
+
+                function onLoad() {
+                    if (isMobile) {
+                        document.addEventListener("deviceready", onDeviceReady, false);
+                    } else {
+                        onDeviceReady();
+                    }
+                }
+
+                function onDeviceReady() {
+                    new FileManager().initialize(function () {
+                        $("#htmlSetupID").load("setup.html", function () {
+                            var injector = angular.element(document.body).injector();
+                            setup = new Setup(injector);
+                            injector.invoke(function ($rootScope, $compile) {
+                                $compile('#htmlSetupID')($rootScope);
+                                setup.openDictionary(injector);
+                            });
+                        });
+                    });
+                }
+
+                function orientationChangeHandler() {
+                    if (!isMobile) {
+                        $("#tdSort2ID").hide();
+                        $("#tdSort1ID").show();
+                        $("#tdInfoID").show();
+                        scroll();
+                        return;
+                    }
+                    var orientationType = screen.orientation.type;
+                    if (Setup.isNullOrUndef(orientationType)) {
+                        orientationType = screen.orientation;
+                    }
+                    if (Setup.isNullOrUndef(orientationType)) {
+                        $("#tdInfoID").hide();
+                        $("#tdSort1ID").hide();
+                        $("#tdSort2ID").show();
+                        scroll();
+                        return;
+                    }
+                    var isLandscape = ('' + orientationType).indexOf("landscape") != -1;
+                    if (isLandscape) {
+                        $("#tdSort2ID").hide();
+                        $("#tdSort1ID").show();
+                        $("#tdInfoID").show();
+                    } else {
+                        $("#tdInfoID").hide();
+                        $("#tdSort1ID").hide();
+                        $("#tdSort2ID").show();
+                    }
+                    scroll();
+                }
+            });
+
+    function scroll() {
+        var isSetupVisible = $('#htmlSetupID').is(':visible');
+        $("#menuID").css("top", '0');
+        $("#menuID").css("position", 'relative');
+        $("#menuID").css("marginLeft", '0');
+        var top = $(document).scrollTop();
+        if (top < 20 || isSetupVisible) {
+            $("#swimMenuID").hide();
+        } else {
+            $("#swimMenuID").show();
+            $("#swimMenuID").css("position", 'fixed');
+            var w1 = $('#swimMenuID').width();
+            var w2 = $('#dictionaryID').width();
+            var h1 = $('#swimMenuID').height();
+            var h2 = $(window).height();
+            $("#swimMenuID").css("top", '' + (h2/2 - h1) + 'px');
+            $("#swimMenuID").css("marginLeft", '' + (w2 - w1) + 'px');
+        }
+    }
+
+    function showMenu() {
+        setup.stopSound();
+        $("#swimMenuID").hide();
+        $("#menuID").show();
+        $("#menuID").css("position", 'fixed');
+        var w1 = $('#menuID').width();
+        var w2 = $('#dictionaryID').width();
+        var h1 = $('#menuID').height();
+        var h2 = $(window).height();
+        $("#menuID").css("top", '' + (h2/2 - h1) + 'px');
+        $("#menuID").css("marginLeft", '' + (w2 - w1) + 'px');
+    }
+</script>
+<div id="swimMenuID" class="swim-menu corner-all-7" style="display:none;" onclick="showMenu()"></div>
+</body>
+</html>

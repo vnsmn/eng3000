@@ -1,0 +1,135 @@
+.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default {
+    border: 1px solid #d3d3d3;
+    background: #e6e6e6 url("css/images/ui-bg_glass_75_e6e6e6_1x400.png") 50% 50% repeat-x;
+    font-weight: normal;
+    color: #555555;
+}
+
+.ui-corner-all, .ui-corner-bottom, .ui-corner-right, .ui-corner-br {
+    border-bottom-right-radius: 10px;
+}
+
+.ui-corner-all, .ui-corner-bottom, .ui-corner-left, .ui-corner-bl {
+    border-bottom-left-radius: 10px;
+}
+
+.ui-corner-all, .ui-corner-top, .ui-corner-right, .ui-corner-tr {
+    border-top-right-radius: 10px;
+}
+
+.ui-corner-all, .ui-corner-top, .ui-corner-left, .ui-corner-tl {
+    border-top-left-radius: 10px;
+}
+
+.ui-state-active {
+    border: 1px solid #aaaaaa;
+    background: #ffffff url("css/images/ui-bg_glass_65_ffffff_1x400.png") 50% 50% repeat-x;
+    font-weight: normal;
+    color: #212121;
+}
+
+.span-unit-config {
+    font-size: xx-large;
+    font-weight: bolder;
+    color: blue;
+    background: lightskyblue;
+}
+
+.span-unit-config-selected {
+    font-size: xx-large;
+    font-weight: bolder;
+    color: blue;
+    background: goldenrod;
+}
+
+.table-unit-config {
+
+}
+
+.image-text-start {
+    background: transparent url('img/media-playback-start.png') no-repeat top left;
+    background-size: 35px;
+    height: 37px;
+    width: 37px;
+    vertical-align: middle;
+    line-height: 37px;
+    cursor: pointer;
+}
+
+.image-text-stop {
+    background: transparent url('img/media-playback-stop.png') no-repeat top left;
+    background-size: 35px;
+    height: 37px;
+    width: 37px;
+    vertical-align: middle;
+    line-height: 37px;
+    cursor: pointer;
+}
+
+.ui-accordion .ui-accordion-content {
+    padding: 0.5em 0.2em;
+    border-top: 0;
+    overflow: auto;
+}
+
+table.menu {
+    cellspacing: 0;
+    cellpadding: 1;
+    border: 1px solid #0000ff;
+    border-collapse: separate;
+    border-spacing: 2px;
+    background-color: #ffcc00;
+}
+
+td.menu {
+    border-collapse: separate;
+}
+
+img.menu {
+    width: 37px;
+    height: 37px;
+    cursor: pointer;
+}
+
+img.play {
+    content: url(../img/play-start.png);
+}
+
+img.play-no {
+    content: url(../img/play-stop.png);
+}
+
+img.translate {
+    content: url(../img/translate.png);
+}
+
+img.translate-no {
+    content: url(../img/translate-no.png);
+}
+
+img.selword {
+    content: url(../img/checked.png);
+}
+
+img.selword-no {
+    content: url(../img/checked-no.png);
+}
+
+img.sort {
+    content: url(../img/sorting.png);
+}
+
+img.sort-no {
+    content: url(../img/sorting-no.png);
+}
+
+img.setup {
+    content: url(../img/setup.png);
+}
+
+img.setup-no {
+    content: url(../img/dictionary.png);
+}
+
+select.delay {
+}

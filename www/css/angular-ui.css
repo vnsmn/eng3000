@@ -1,0 +1,161 @@
+img.checked {
+    content: url(../img/checked.png);
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+}
+
+img.checked-no {
+    content: url(../img/checked-no.png);
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+}
+
+div.tree {
+    vertical-align: top;
+    height: 15px;
+    width: 15px;
+    line-height: 15px;
+    width: 100%;
+}
+
+span.focused {
+    vertical-align: top;
+    cursor: pointer;
+    background-color: #dfffff;
+}
+
+span.focused-no {
+    vertical-align: top;
+    cursor: pointer;
+    background-color: #FFFFFF;
+}
+
+span.focusedLeaf {
+    vertical-align: top;
+    cursor: pointer;
+    background-color: #dfffff;
+    font-style: italic;
+}
+
+span.focusedLeaf-no {
+    vertical-align: top;
+    cursor: pointer;
+    background-color: #FFFFFF;
+    font-style: italic;
+}
+
+span.select-menu {
+    display: block;
+}
+
+div.select-popup {
+    position: absolute;
+    display: block;
+    z-index: 100;
+}
+
+.ui-selectmenu-button span.ui-selectmenu-text {
+    text-align: left;
+    padding: 0.4em 2.1em 0.4em 1em;
+    display: block;
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: small;
+}
+
+.ui-button-text {
+    font-size: small;
+}
+
+.ui-button {
+    font-size: small;
+}
+
+.text {
+    font-size: small;
+}
+
+.ui-img {
+    background: transparent url('../img/setup.png') no-repeat top left;
+    background-size: 35px;
+}
+
+.flag-icon-ru {
+    background-image: url('../img/ru.svg');
+    background-repeat:no-repeat;
+    background-position: left top;
+    background-size: 30%;
+}
+
+.flag-icon-us {
+    background-image: url('../img/us.svg');
+    background-repeat:no-repeat;
+    background-position: left top;
+    background-size: 30%;
+}
+
+.flag-icon-br {
+    background-image: url('../img/br.svg');
+    background-repeat:no-repeat;
+    background-position: left top;
+    background-size: 30%;
+}
+
+.flag-icon-ua {
+    background-image: url('../img/ua.svg');
+    background-repeat:no-repeat;
+    background-position: left top;
+    background-size: 30%;
+}
+
+.flag-icon {
+    background-repeat:no-repeat;
+    background-position: left top;
+    background-size: cover;
+    float: left;
+    width: 35px;
+    height: 35px;
+    cursor: pointer;
+    border:1px solid skyblue;
+}
+
+.flag-icon-30 {
+    background-repeat:no-repeat;
+    background-position: left top;
+    background-size: cover;
+    float: left;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    border:1px solid skyblue;
+}
+
+.flag-icon-ru1 {
+    background-image: url('../img/ru.svg');
+    background-size: cover;
+}
+
+.flag-icon-br1 {
+    background: transparent url('../img/br.svg');
+    background-size: cover;
+}
+
+.flag-icon-us1 {
+    background-image: url('../img/us.svg');
+    background-size: cover;
+}
+
+.flag-icon-ua1 {
+    background-image: url('../img/ua.svg');
+    background-size: cover;
+}
+.flag-icon-corner-all {
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
