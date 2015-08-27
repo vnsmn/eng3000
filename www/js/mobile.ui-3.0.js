@@ -599,11 +599,7 @@ define('mobile.ui',
                 return list;
             };
             this.getData = function () {
-                var data = $datas[self.selected];
-                if (isNullOrUndef(data.dicFileID) || self.selected == 'default') {
-                    data.dicFileID = {sel: 'dictionary.json'}
-                }
-                return data;
+                return $datas[self.selected];
             };
             this.save = function () {
                 localStorage.setItem('eng3000.configurations.selected', self.selected);
@@ -631,14 +627,18 @@ define('mobile.ui',
                 return self.selected == 'default';
             };
             this.getDicFile = function() {
-                return this.getData().dicFileID.sel;
+                var data = self.getData();
+                if (isNullOrUndef(data.dicFileID) || self.isDefault()) {
+                    data.dicFileID = {sel: 'dictionary.json'}
+                }
+                return data.dicFileID.sel;
             };
             this.setDicFile = function(value) {
-                if (this.selected == 'default' && value != 'dictionary.json') {
+                if (self.isDefault() && value != 'dictionary.json') {
                     openDialog('Configuration', 'value must be dictionary.json for default.');
                     return;
                 }
-                this.getData().dicFileID.sel = value;
+                self.getData().dicFileID.sel = value;
             };
         }
 
