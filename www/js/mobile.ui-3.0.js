@@ -287,7 +287,7 @@ define('mobile.ui',
                             callback: function (id) {
                                 $rootScope.$broadcast("appUIApp.text.confID.get", function (data) {
                                     self.updateConfiguration();
-                                    configuration.select(data.text);
+                                    configuration.add(data.text, configuration.getData());
                                     setTimeout(function () {
                                         reloadSetup();
                                     }, 100);
@@ -300,14 +300,16 @@ define('mobile.ui',
                             title: 'del',
                             disabled: configuration.isDefault(),
                             callback: function (id) {
-                                $rootScope.$broadcast("appUIApp.text.confID.get", function (data) {
-                                    if (!configuration.isDefault()) {
-                                        configuration.unselect();
-                                        setTimeout(function () {
-                                            reloadSetup();
-                                        }, 100);
-                                    }
-                                });
+                                var delFn = function () {
+                                    configuration.unselect();
+                                    setTimeout(function () {
+                                        reloadSetup();
+                                    }, 100);
+                                };
+                                if (!configuration.isDefault()) {
+                                    confirmOpenDialog('Configuration', 'Are you want to delete?',
+                                        'Delete', delFn);
+                                }
                             }
                         }
                     });
@@ -607,15 +609,41 @@ define('mobile.ui',
                 //localStorage.removeItem('eng3000.configurations.selected');
                 //console.log('eng3000.store_setup.save: ' + angular.toJson($data));
             };
+            this.add = function (name, data) {
+                if (isNullOrUndef(name)) {
+                    openDialog('Configuration', 'The label can\'t be empty.');
+                }
+                if (name == 'default') {
+                    openDialog('Configuration', 'The label can\'t be modified for default.');
+                    return;
+                }
+                var dublicate = false;
+                $.each($datas, function(key, val) {
+                    if (name == key) {
+                        dublicate = true;
+                        return false;
+                    }
+                });
+                if (dublicate) {
+                    openDialog('Configuration', 'The label already exists.');
+                    return;
+                }
+
+                $datas[name] = $.extend(true, {}, $def, data);
+                self.selected = name.toLowerCase();
+                self.save();
+                load();
+                return self.selected;
+            };
             this.select = function (name) {
                 self.selected = isNullOrUndef(name) ? 'default' : name.toLowerCase();
                 $datas[self.selected] = $.extend(true, {}, $def, $datas[self.selected]);
-                self.save()
+                self.save();
                 load();
                 return self.selected;
             };
             this.unselect = function () {
-                if (self.selected == 'default') {
+                if (self.isDefault()) {
                     return;
                 }
                 if (!isNullOrUndef($datas[self.selected])) {
@@ -717,6 +745,27 @@ define('mobile.ui',
                             $(this).dialog("close");
                         }
                     }
+                });
+            });
+        }
+
+        function confirmOpenDialog(title, message, name, fn) {
+            var buttons = {
+                Cancel: function () {
+                    $(this).dialog("close");
+                }
+            };
+            buttons[name] = function() {
+                fn();
+                $(this).dialog("close");
+            };
+            $("#dialog-message").text(message);
+            $("#dialog-message").attr('title', title);
+            $(function () {
+                $("#dialog-message").dialog({
+                    resizable: true,
+                    modal: true,
+                    buttons: buttons
                 });
             });
         }
