@@ -514,23 +514,30 @@ define('angular-ui',
 
         angularUIModule.directive("buttonDir", function (buildEventName, $timeout, $rootScope) {
             return {
-                controller: function ($scope, $rootScope, $sce, findItem, isExpandedItem, $log) {
+                controller: function ($scope, $element) {
                     this.item = {
-                        title: '-', callback: function (id) {
+                        title: '-',
+                        disabled: false,
+                        callback: function (id) {
                         }
                     };
                     this.ngClick = function () {
                         $scope.but.item.callback($scope.but.id);
                     };
+                    this.ngDisabled = function() {
+                        var disabled = $scope.but.item.disabled;
+                        return isNullOrUndef(disabled) ? false : disabled;
+                    };
                     $scope.$on(buildEventName('button', $scope.but.id, 'init'), function (event, data) {
                         $scope.but.item = data.item;
+                        $($element.children()[0]).button('option', 'disabled', $scope.but.ngDisabled());
                         $scope.$apply()
                     });
                 },
                 scope: {id: '@'},
                 restrict: 'E',
                 replace: true,
-                template: "<div><input id='{{but.id}}' type='submit' ng-click='but.ngClick()' ng-value='but.item.title' /></div>",
+                template: "<div><input id='{{but.id}}' type='submit' ng-click='but.ngClick()' ng-value='but.item.title' ng-disabled='but.ngDisabled()' /></div>",
                 controllerAs: "but",
                 bindToController: true,
                 link: {
@@ -553,8 +560,12 @@ define('angular-ui',
             return {
                 controller: function ($scope, $rootScope, $sce, findItem, isExpandedItem, $log) {
                     this.item = {
-                        title: 'text', text: '', callback: function (id, text) {
+                        title: 'text', disabled: false, text: '', callback: function (id, text) {
                         }
+                    };
+                    this.ngDisabled = function() {
+                        var disabled = $scope.text.item.disabled;
+                        return isNullOrUndef(disabled) ? false : disabled;
                     };
                     $scope.$on(buildEventName('text', $scope.text.id, 'init'), function (event, data) {
                         $scope.text.item = data.item;
@@ -577,7 +588,7 @@ define('angular-ui',
                 },
                 restrict: 'E',
                 replace: true,
-                template: "<div><input id='{{text.id}}' type='text' ng-class='text.classname' ng-model='text.item.text'><label for='{{text.id}}'>{{text.item.title}}</label></div>",
+                template: "<div><input id='{{text.id}}' type='text' ng-disabled='text.ngDisabled()' ng-class='text.classname' ng-model='text.item.text'><label for='{{text.id}}'>{{text.item.title}}</label></div>",
                 controllerAs: "text",
                 bindToController: true,
                 link: {

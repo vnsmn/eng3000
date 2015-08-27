@@ -6,7 +6,6 @@ define('mobile.ui',
         var soundManager = new sound.SoundManager();
 
         function Setup(injector) {
-            var url = "dictionary.json";
             var dic;
             var $injector = injector;
             var self = this;
@@ -166,6 +165,7 @@ define('mobile.ui',
             };
 
             this.loadDictionary = function () {
+                var url = configuration.getDicFile();
                 var src = new FileManager().resolveFilePath(url, configuration.getData().dicDirID.sel);
                 //console.log('Loading dictionary by path: ' + src);
                 new FileManager().readTextFile(src, function (jsonText) {
@@ -221,6 +221,9 @@ define('mobile.ui',
                     $rootScope.$broadcast("appUIApp.text.dicDirID.get", function (data) {
                         configuration.getData().dicDirID.sel = data.text;
                     });
+                    $rootScope.$broadcast("appUIApp.text.dicFileID.get", function (data) {
+                        configuration.setDicFile(data.text);
+                    });
                 });
                 configuration.save();
             };
@@ -229,7 +232,18 @@ define('mobile.ui',
                 injector.invoke(function ($rootScope) {
                     $rootScope.$broadcast("appUIApp.text.dicDirID.init", {
                         item: {
-                            title: '', text: configuration.getData().dicDirID.sel, callback: null
+                            title: '',
+                            disabled: configuration.isDefault(),
+                            text: configuration.getData().dicDirID.sel,
+                            callback: null
+                        }
+                    });
+                    $rootScope.$broadcast("appUIApp.text.dicFileID.init", {
+                        item: {
+                            title: '',
+                            disabled: configuration.isDefault(),
+                            text: configuration.getDicFile(),
+                            callback: null
                         }
                     });
                     $rootScope.$broadcast("appUIApp.tree.wordID.init", {
@@ -284,9 +298,10 @@ define('mobile.ui',
                     $rootScope.$broadcast("appUIApp.button.confdelID.init", {
                         item: {
                             title: 'del',
+                            disabled: configuration.isDefault(),
                             callback: function (id) {
                                 $rootScope.$broadcast("appUIApp.text.confID.get", function (data) {
-                                    if (configuration.selected != 'default') {
+                                    if (!configuration.isDefault()) {
                                         configuration.unselect();
                                         setTimeout(function () {
                                             reloadSetup();
@@ -546,6 +561,7 @@ define('mobile.ui',
         }
 
         function Configuration() {
+            var self = this;
             this.selected = 'default';
             var $datas = {};
             var $def = {
@@ -556,9 +572,9 @@ define('mobile.ui',
                 delayEngRusID: {sel: 0},
                 speedID: {sel: 1.0},
                 dicDirID: {sel: ''},
+                dicFileID: {sel : 'dictionary.json'},
                 wordID: []
             };
-            var self = this;
 
             var load = function () {
                 self.selected = localStorage.getItem('eng3000.configurations.selected');
@@ -583,7 +599,11 @@ define('mobile.ui',
                 return list;
             };
             this.getData = function () {
-                return $datas[self.selected];
+                var data = $datas[self.selected];
+                if (isNullOrUndef(data.dicFileID) || self.selected == 'default') {
+                    data.dicFileID = {sel: 'dictionary.json'}
+                }
+                return data;
             };
             this.save = function () {
                 localStorage.setItem('eng3000.configurations.selected', self.selected);
@@ -606,6 +626,19 @@ define('mobile.ui',
                     delete $datas[self.selected];
                 }
                 return self.select('default');
+            };
+            this.isDefault = function() {
+                return self.selected == 'default';
+            };
+            this.getDicFile = function() {
+                return this.getData().dicFileID.sel;
+            };
+            this.setDicFile = function(value) {
+                if (this.selected == 'default' && value != 'dictionary.json') {
+                    openDialog('Configuration', 'value must be dictionary.json for default.');
+                    return;
+                }
+                this.getData().dicFileID.sel = value;
             };
         }
 
