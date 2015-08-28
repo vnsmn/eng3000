@@ -1,5 +1,13 @@
 define('mobile.ui',
-    ['jquery', 'jquery-ui', 'mobile-synch', 'mobile-sound', "angular", "angular-ui", "mobile-file"],
+    ['jquery',
+        'jquery-ui',
+        'mobile-synch',
+        'mobile-sound',
+        "angular",
+        "angular-ui",
+        "mobile-file",
+        "block-ui"
+    ],
     function ($, UI, CallStack, sound, angular, angularUI, FileManager) {
         var appModule = angular.module("app", ['angUIApp']);
         var configuration = new Configuration();
@@ -24,20 +32,24 @@ define('mobile.ui',
             };
 
             var reloadSetup = function () {
-                $callStack.reset();
-                $callStack.addFn('loadDictionary', self.loadDictionary);
-                $callStack.addFn('updateDictionary', self.updateDictionary, []);
-                $callStack.addFn('initSetupWidgets', self.initSetupWidgets);
-                $callStack.next();
+                blockUI();
+                setTimeout(function () {
+                    $callStack.reset();
+                    $callStack.addFn('loadDictionary', self.loadDictionary);
+                    $callStack.addFn('updateDictionary', self.updateDictionary, []);
+                    $callStack.addFn('initSetupWidgets', self.initSetupWidgets);
+                    $callStack.next();
+                }, 500);
             };
 
             var reloadDictionaryWidget = function () {
                 self.stopSound();
+                blockUI();
                 setTimeout(function () {
                     $callStack.reset();
                     $callStack.addFn('initDictionaryWidgets', self.initDictionaryWidgets);
                     $callStack.next();
-                }, 100);
+                }, 500);
             };
 
             injector.invoke(function ($rootScope) {
@@ -130,7 +142,9 @@ define('mobile.ui',
                 $rootScope.$on("appUIApp.enum.pronDicID.selected", function (event, data) {
                     configuration.getData().pronID.sel = ['am', 'br'][data.selected];
                     self.stopSound();
+                    blockUI();
                     soundManager.setFilter(filterToInt());
+                    unblockUI();
                 });
                 $rootScope.$on("appUIApp.check.showRusDicID.selected", function (event, data) {
                     configuration.getData().showRusID.sel = data.selected;
@@ -139,7 +153,9 @@ define('mobile.ui',
                 $rootScope.$on("appUIApp.check.playRusDicID.selected", function (event, data) {
                     configuration.getData().playRusID.sel = data.selected;
                     self.stopSound();
+                    blockUI();
                     soundManager.setFilter(filterToInt());
+                    unblockUI();
                 });
             });
 
@@ -351,11 +367,12 @@ define('mobile.ui',
                 $injector.invoke(function ($rootScope) {
                     $rootScope.$broadcast("dictController_init", {
                         items: selItems,
-                        ngSelClick: function() {
+                        ngSelClick: function () {
                             self.stopSound();
                         }
                     });
                 });
+                unblockUI();
             };
 
             this.initDictionaryWidgets = function () {
@@ -427,7 +444,7 @@ define('mobile.ui',
                 $injector.invoke(function ($rootScope) {
                     $rootScope.$broadcast("dictController_init", {
                         items: soundItems,
-                        ngSelClick: function() {
+                        ngSelClick: function () {
                             self.stopSound();
                         }
                     });
@@ -439,6 +456,7 @@ define('mobile.ui',
                 soundManager.setFilter(filterToInt());
                 soundManager.setSpeed(cnf.speedID.sel);
                 soundManager.setSources(sources);
+                unblockUI();
             };
 
             this.sortDictionary = function (sources, soundItems) {
@@ -468,8 +486,11 @@ define('mobile.ui',
             }
 
             this.openSetup = function (injector) {
-                $injector = injector;
-                $callStack.next();
+                blockUI();
+                setTimeout(function() {
+                    $injector = injector;
+                    $callStack.next();
+                }, 500);
             };
 
             this.closeSetup = function () {
@@ -480,8 +501,11 @@ define('mobile.ui',
             };
 
             this.openDictionary = function (injector) {
-                $injector = injector;
-                $callStack.next();
+                blockUI();
+                setTimeout(function() {
+                    $injector = injector;
+                    $callStack.next();
+                }, 500);
             };
 
             this.closeDictionary = function () {
@@ -574,7 +598,7 @@ define('mobile.ui',
                 delayEngRusID: {sel: 0},
                 speedID: {sel: 1.0},
                 dicDirID: {sel: ''},
-                dicFileID: {sel : 'dictionary.json'},
+                dicFileID: {sel: 'dictionary.json'},
                 wordID: []
             };
 
@@ -618,7 +642,7 @@ define('mobile.ui',
                     return;
                 }
                 var dublicate = false;
-                $.each($datas, function(key, val) {
+                $.each($datas, function (key, val) {
                     if (name == key) {
                         dublicate = true;
                         return false;
@@ -651,17 +675,17 @@ define('mobile.ui',
                 }
                 return self.select('default');
             };
-            this.isDefault = function() {
+            this.isDefault = function () {
                 return self.selected == 'default';
             };
-            this.getDicFile = function() {
+            this.getDicFile = function () {
                 var data = self.getData();
                 if (isNullOrUndef(data.dicFileID) || self.isDefault()) {
                     data.dicFileID = {sel: 'dictionary.json'}
                 }
                 return data.dicFileID.sel;
             };
-            this.setDicFile = function(value) {
+            this.setDicFile = function (value) {
                 if (self.isDefault() && value != 'dictionary.json') {
                     openDialog('Configuration', 'value must be dictionary.json for default.');
                     return;
@@ -755,7 +779,7 @@ define('mobile.ui',
                     $(this).dialog("close");
                 }
             };
-            buttons[name] = function() {
+            buttons[name] = function () {
                 fn();
                 $(this).dialog("close");
             };
@@ -768,6 +792,29 @@ define('mobile.ui',
                     buttons: buttons
                 });
             });
+        }
+
+        function blockUI() {
+            setTimeout(function () {
+                $.blockUI({
+                    message:  '<span style="font-size: small">Please wait...</span>',
+                    css: {
+                        border: 'none',
+                        padding: '15px',
+                        backgroundColor: '#000',
+                        '-webkit-border-radius': '10px',
+                        '-moz-border-radius': '10px',
+                        opacity: .5,
+                        color: '#fff',
+                        'font-size': 'smaller',
+                        cursor: 'wait'
+                    }
+                });
+            }, 0);
+        }
+
+        function unblockUI() {
+            setTimeout($.unblockUI, 500);
         }
 
         return Setup;
