@@ -50,7 +50,7 @@
     <table ng-repeat='item in items track by $index'
            style="width:100%;border: 1px solid ghostwhite;background: lightsteelblue;">
         <tr>
-            <td rowspan="3">
+            <td rowspan="4">
                 <enum-dir id='wordplayID{{$index}}' name='{{item.name}}' callback='setup.playWord'
                           init='[{"title":"", "css":"media-play-start media-play"},{"title":"", "css":"media-play-stop media-play"}]'></enum-dir>
             </td>
@@ -73,6 +73,15 @@
             <td ng-show="ngShowRus(item)" style="background-color: lightcyan;width:100%;cursor: pointer"
                 onclick="setup.stopSound()">
                 <span style="font-size: x-small">{{item.prop.get('rus')}}</span>
+            </td>
+        </tr>
+        <tr ng-show="ngShowDict(item)">
+            <td></td>
+            <td style="background-color: lightgrey;width:100%;cursor: pointer"
+                onclick="setup.stopSound()">
+                <a id='{{item2.id}}' name='{{item2.id}}' style="font-size: small" href="#"
+                   ng-click="play('playID', item2, 'setup')"
+                   ng-repeat='item2 in wds(item) track by $index'><span name="span{{item2.id}}" style="color: black">{{item2.word}}  </span></a>
             </td>
         </tr>
     </table>

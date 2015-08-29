@@ -28,6 +28,7 @@ define('mobile.ui',
                 var cnf = configuration.getData();
                 var i = cnf.pronID.sel == 'br' ? 1 : 2;
                 i = i + (cnf.playRusID.sel ? 4 : 0);
+                i = i + 8;
                 return i;
             };
 
@@ -169,11 +170,19 @@ define('mobile.ui',
                             var eng = ws[0];
                             var rus = ws[1];
                             var tr = ws[2];
+                            var wds = ws[3];
                             var name = ind + "." + eng;
                             var treeItem = dic.add(name, false, true, eng);
                             treeItem.prop.put('eng', eng);
                             treeItem.prop.put('trans', Setup.toString(tr, ''));
                             treeItem.prop.put('rus', Setup.toString(rus, ''));
+                            if (!isNullOrUndef(wds)) {
+                                var words = [];
+                                $.each(wds.split(','), function (ind3, w) {
+                                    words.push({word: w.trim().toLowerCase()});
+                                });
+                                treeItem.prop.put('wds', words);
+                            }
                         });
                     }
                 });
@@ -407,6 +416,7 @@ define('mobile.ui',
                 sources = [];
                 var cnf = configuration.getData();
                 var allWordAmount = 0;
+                var uniqIndex = 0;
                 $.each(self.dic.getItems(), function (ind, item) {
                     if (item.leaf) {
                         allWordAmount++;
@@ -437,6 +447,17 @@ define('mobile.ui',
                         sources.push(source);
                         item.prop.put('source-ru', source);
                         item.prop.put('showrus', cnf.showRusID.sel);
+                        var wds = item.prop.get('wds')
+                        if (!isNullOrUndef(wds)) {
+                            $.each(wds, function(ind2, wd) {
+                                wd['id'] = 'wordplay2ID'+uniqIndex++;
+                                src = new FileManager().resolveFilePath('br/' + wd.word + '.mp3', configuration.getData().dicDirID.sel);
+                                wd['source-br'] = new sound.Source(8, src, 'span' + wd.id, wd.id, delay);
+                                mapSources.put(item.name + '.' + wd.word, item);
+                                src = new FileManager().resolveFilePath('am/' + wd.word + '.mp3', configuration.getData().dicDirID.sel);
+                                wd['source-am'] = new sound.Source(8, src, 'span' + wd.id, wd.id, delay);
+                            });
+                        }
                     }
                 });
                 self.sortDictionary(sources, soundItems);
@@ -486,7 +507,10 @@ define('mobile.ui',
             }
 
             this.openSetup = function (injector) {
-                blockUI();
+                blockUI()
+                $callStack.reset();
+                $callStack.addFn('updateDictionary', self.updateDictionary);
+                $callStack.addFn('initSetupWidgets', self.initSetupWidgets);
                 setTimeout(function() {
                     $injector = injector;
                     $callStack.next();
@@ -495,13 +519,13 @@ define('mobile.ui',
 
             this.closeSetup = function () {
                 self.updateConfiguration();
-                $callStack.reset();
-                $callStack.addFn('updateDictionary', self.updateDictionary);
-                $callStack.addFn('initDictionaryWidgets', self.initDictionaryWidgets);
             };
 
             this.openDictionary = function (injector) {
                 blockUI();
+                $callStack.reset();
+                $callStack.addFn('updateDictionary', self.updateDictionary);
+                $callStack.addFn('initDictionaryWidgets', self.initDictionaryWidgets);
                 setTimeout(function() {
                     $injector = injector;
                     $callStack.next();
@@ -510,9 +534,6 @@ define('mobile.ui',
 
             this.closeDictionary = function () {
                 self.stopSound();
-                $callStack.reset();
-                $callStack.addFn('updateDictionary', self.updateDictionary);
-                $callStack.addFn('initSetupWidgets', self.initSetupWidgets);
             };
 
             this.stopSound = function () {
@@ -577,6 +598,19 @@ define('mobile.ui',
                     self.stopSound.apply(self);
                     currentPlayID = null;
                 }
+            };
+
+            this.playWord2 = function (id, item) {
+                    self.stopSound.apply(self);
+                    currentPlayID = id;
+                    $injector.invoke(function ($rootScope) {
+                        $rootScope.$broadcast("appUIApp.enum." + currentPlayID + ".set", {
+                            selected: 1
+                        });
+                    });
+                    var source = item['source-' + configuration.getData().pronID.sel];
+                    soundManager.setSources([source]);
+                    soundManager.play();
             };
 
             $callStack.addFn('loadDictionary', this.loadDictionary);
@@ -696,6 +730,18 @@ define('mobile.ui',
 
         appModule.controller('dictController', ['$scope', '$rootScope', function ($scope, $rootScope) {
             $scope.items = [];
+            $scope.wds = function (item) {
+                var arrWord = item.prop.get('wds');
+                return isNullOrUndef(arrWord) || arrWord.length == 0 ? [] : arrWord;
+            };
+            $scope.play = function(playID, item, thisName) {
+                event.stopPropagation();
+                var thisFn = eval(thisName);
+                thisFn.playWord2.call(thisFn, playID, item);
+            };
+            $scope.ngShowDict = function(item) {
+                return $scope.wds(item).length > 0;
+            }
             $scope.ngChecked = function (item) {
                 return item.selected;
             };

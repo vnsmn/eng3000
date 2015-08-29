@@ -5,7 +5,7 @@
   "Stage.Beginning": {
     "title": "Beginning",
     "dict": [
-      ["start","start","stɑːt|stɑːrt"],
+      ["start","start","stɑːt|stɑːrt", "start,begin,become"],
       ["begin","begin","bɪˈɡɪn|bɪˈɡɪn"],
       ["become","become",""]
     ]
@@ -39,7 +39,7 @@
     "dict": [
       ["finish","finish",""],
       ["end","end",""],
-      ["complete","complete",""]
+      ["complete","complete","","start,begin,become"]
     ]
   }
 }
