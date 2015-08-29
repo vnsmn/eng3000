@@ -775,6 +775,10 @@ define('mobile.ui',
                 var show = item.prop.get('showrus');
                 return !isNullOrUndef(item.prop.get('showrus')) && show;
             };
+            $scope.ngShowTrans = function (item) {
+                var trans = item.prop.get('trans');
+                return !isNullOrUndef(trans) && trans != "";
+            };
             $rootScope.$on('dictController_init', function (event, data) {
                 $scope.fnselClick = data.ngSelClick;
                 $scope.items = [];
