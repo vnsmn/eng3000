@@ -175,30 +175,36 @@ define('mobile.ui',
 
             var buildDictionaryTree = function (jsonText) {
                 var dic = new angularUI.TreeItems();
-                $.each(angular.fromJson(jsonText), function (ind, val) {
-                    var isLeaf = !Utils.isNullOrUndef(val.dict) && val.dict.length > 0;
-                    dic.add(ind, false, false, val.title, val.dict);
-                    if (isLeaf) {
-                        $.each(val.dict, function (ind2, ws) {
-                            var eng = ws[0];
-                            var rus = ws[1];
-                            var tr = ws[2];
-                            var wds = ws[3];
-                            var name = ind + "." + eng;
-                            var treeItem = dic.add(name, false, true, self.escapeSymbol(eng));
-                            treeItem.prop.put('src-eng', eng);
-                            treeItem.prop.put('eng', self.escapeSymbol(eng));
-                            treeItem.prop.put('trans', Utils.toString(tr, ''));
-                            treeItem.prop.put('src-rus', Utils.toString(rus, ''));
-                            treeItem.prop.put('rus', self.escapeSymbol(Utils.toString(rus, '')));
-                            if (!Utils.isNullOrUndef(wds)) {
-                                var words = [];
-                                $.each(wds.split(','), function (ind3, w) {
-                                    words.push({word: w.trim().toLowerCase()});
-                                });
-                                treeItem.prop.put('wds', words);
-                            }
-                        });
+                var js = angular.fromJson(jsonText);
+                if (!Utils.isNullOrUndef(js.$)) {
+                    Utils.setEscapeSymbols(js.$.escape);
+                }
+                $.each(js, function (ind, val) {
+                    if (ind != "$") {
+                        var isLeaf = !Utils.isNullOrUndef(val.dict) && val.dict.length > 0;
+                        dic.add(ind, false, false, val.title, val.dict);
+                        if (isLeaf) {
+                            $.each(val.dict, function (ind2, ws) {
+                                var eng = ws[0];
+                                var rus = ws[1];
+                                var tr = ws[2];
+                                var wds = ws[3];
+                                var name = ind + "." + eng;
+                                var treeItem = dic.add(name, false, true, Utils.escapeSymbol(eng));
+                                treeItem.prop.put('src-eng', eng);
+                                treeItem.prop.put('eng', Utils.escapeSymbol(eng));
+                                treeItem.prop.put('trans', Utils.toString(tr, ''));
+                                treeItem.prop.put('src-rus', Utils.toString(rus, ''));
+                                treeItem.prop.put('rus', Utils.escapeSymbol(Utils.toString(rus, '')));
+                                if (!Utils.isNullOrUndef(wds)) {
+                                    var words = [];
+                                    $.each(wds.split(','), function (ind3, w) {
+                                        words.push({word: w.trim().toLowerCase()});
+                                    });
+                                    treeItem.prop.put('wds', words);
+                                }
+                            });
+                        }
                     }
                 });
                 return dic;
@@ -566,16 +572,6 @@ define('mobile.ui',
                 self.stopSound();
             };
 
-            this.escapeSymbol = function (text) {
-                return text
-                    .replace(new RegExp("[_]", 'g'), ' ')
-                    .replace(new RegExp("@0095", 'g'), '_')
-                    .replace(new RegExp("@0046", 'g'), '.')
-                    .replace(new RegExp("@0039", 'g'), '')
-                    .replace(new RegExp("@0044", 'g'), ',')
-                    .replace(new RegExp("@0063", 'g'), '?');
-            };
-
             this.stopSound = function () {
                 if (!Utils.isNullOrUndef(currentPlayID)) {
                     $injector.invoke(function ($rootScope) {
@@ -637,7 +633,7 @@ define('mobile.ui',
                     sources.push(source);
                     var words = item.prop.get('wds');
                     if (!Utils.isNullOrUndef(words) && words.length > 0) {
-                        $.each(words, function(ind, item) {
+                        $.each(words, function (ind, item) {
                             var source = item['source-' + configuration.getData().pronID.sel];
                             sources.push(source);
                         });
@@ -659,7 +655,7 @@ define('mobile.ui',
                     });
                 });
                 var sources = [];
-                $.each(items, function(ind, item) {
+                $.each(items, function (ind, item) {
                     var source = item['source-' + configuration.getData().pronID.sel];
                     sources.push(source);
                 });
@@ -669,7 +665,7 @@ define('mobile.ui',
 
             var firstDate = new Date();
             var lastDate = new Date();
-            setInterval(function() {
+            setInterval(function () {
                 lastDate = new Date();
                 var diffDate = new Date(lastDate.getTime() - firstDate.getTime());
                 $injector.invoke(function ($rootScope) {

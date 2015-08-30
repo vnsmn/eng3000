@@ -27,7 +27,8 @@ define('mobile-utils', ['jquery', 'block-ui'], function ($) {
                     setTimeout(wrapper, delay);
                 }
             }, delay);
-        };
+        }
+        ;
     };
 
     Utils.toString = function (arg, def) {
@@ -59,6 +60,39 @@ define('mobile-utils', ['jquery', 'block-ui'], function ($) {
 
     Utils.isBlank = function (s) {
         return Utils.isNullOrUndef(s) || s.replace(new RegExp('[ ]+', 'g'), '').length == 0;
+    };
+
+    Utils.escapeSymbols = [
+        ['[_]', ' '],
+        ['@0095', '_'],
+        ['@0046', '.'],
+        ['@0039', '\''],
+        ['@0044', ','],
+        ['@0045', '-'],
+        ['@0063', '?']
+    ];
+
+    Utils.escapeSymbol = function (text) {
+        var t = text;
+        $.each(Utils.escapeSymbols, function(ind, val) {
+            t = t.replace(new RegExp(val[0], 'g'), val[1]);
+        });
+        return t;
+    };
+
+    Utils.setEscapeSymbols = function (escapes) {
+        if (Utils.isNullOrUndef(escapes)) {
+            return;
+        }
+        var hset = new HashSet();
+        $.each(Utils.escapeSymbols, function(ind, val) {
+            hset.add(val[0]);
+        });
+        $.each(escapes, function(ind, val) {
+            if (!hset.contains(val[0])) {
+                Utils.escapeSymbols.push(val);
+            }
+        });
     };
 
     return Utils;
