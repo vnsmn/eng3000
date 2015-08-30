@@ -6,9 +6,9 @@ define('mobile.ui',
         "angular",
         "angular-ui",
         "mobile-file",
-        "block-ui"
+        "mobile-utils"
     ],
-    function ($, UI, CallStack, sound, angular, angularUI, FileManager) {
+    function ($, UI, CallStack, sound, angular, angularUI, FileManager, Utils) {
         var appModule = angular.module("app", ['angUIApp']);
         var configuration = new Configuration();
         var soundManager = new sound.SoundManager();
@@ -27,13 +27,13 @@ define('mobile.ui',
             var filterToInt = function () {
                 var cnf = configuration.getData();
                 var i = cnf.pronID.sel == 'br' ? 1 : 2;
-                i = i + (cnf.playRusID.sel ? 4 : 0);
-                i = i + 8;
+                i += (cnf.playRusID.sel ? 4 : 0);
+                i += (configuration.isPlayDic() ? 8 : 0);
                 return i;
             };
 
             var reloadSetup = function () {
-                blockUI();
+                Utils.blockUI();
                 setTimeout(function () {
                     $callStack.reset();
                     $callStack.addFn('loadDictionary', self.loadDictionary);
@@ -45,7 +45,7 @@ define('mobile.ui',
 
             var reloadDictionaryWidget = function () {
                 self.stopSound();
-                blockUI();
+                Utils.blockUI();
                 setTimeout(function () {
                     $callStack.reset();
                     $callStack.addFn('initDictionaryWidgets', self.initDictionaryWidgets);
@@ -72,7 +72,7 @@ define('mobile.ui',
                     } else {
                         currentPlayID = null;
                         soundManager.stop();
-                        if (!isNullOrUndef(soundListener)) {
+                        if (!Utils.isNullOrUndef(soundListener)) {
                             soundListener(soundManager.getState());
                         }
                     }
@@ -93,10 +93,12 @@ define('mobile.ui',
                     sorts.put('sort321', 2);
                     sorts.put('sort132', 3);
                     sortName = data.selected;
-                    reloadDictionaryWidget();
                     $rootScope.$broadcast("appUIApp.enum.sort2ID.set", {
                         selected: sorts.get(data.selected)
                     });
+                    Utils.invokeLate(function () {
+                        return self.getSortName();
+                    }, reloadDictionaryWidget, 1000);
                 });
                 $rootScope.$broadcast("appUIApp.enum.sort2ID.init", {
                     items: [
@@ -108,15 +110,14 @@ define('mobile.ui',
                     selected: 0
                 });
                 $rootScope.$on("appUIApp.enum.sort2ID.selected", function (event, data) {
-                    var sorts = ['sortn', 'sort123', 'sort321', 'sort132']
+                    var sorts = ['sortn', 'sort123', 'sort321', 'sort132'];
                     sortName = sorts[data.selected];
-                    reloadDictionaryWidget();
                     $rootScope.$broadcast("appUIApp.radio.sort1ID.set", {
                         selected: sortName
                     });
-                });
-                $rootScope.$on("appUIApp.enum.playID.selected", function (event, data) {
-
+                    Utils.invokeLate(function () {
+                        return self.getSortName();
+                    }, reloadDictionaryWidget, 1000);
                 });
                 $rootScope.$broadcast("appUIApp.button.playID.init", {
                     item: {
@@ -143,9 +144,9 @@ define('mobile.ui',
                 $rootScope.$on("appUIApp.enum.pronDicID.selected", function (event, data) {
                     configuration.getData().pronID.sel = ['am', 'br'][data.selected];
                     self.stopSound();
-                    blockUI();
+                    Utils.blockUI();
                     soundManager.setFilter(filterToInt());
-                    unblockUI();
+                    Utils.unblockUI();
                 });
                 $rootScope.$on("appUIApp.check.showRusDicID.selected", function (event, data) {
                     configuration.getData().showRusID.sel = data.selected;
@@ -154,16 +155,27 @@ define('mobile.ui',
                 $rootScope.$on("appUIApp.check.playRusDicID.selected", function (event, data) {
                     configuration.getData().playRusID.sel = data.selected;
                     self.stopSound();
-                    blockUI();
+                    Utils.blockUI();
                     soundManager.setFilter(filterToInt());
-                    unblockUI();
+                    Utils.unblockUI();
+                });
+                $rootScope.$on("appUIApp.check.playDicDicID.selected", function (event, data) {
+                    configuration.setPlayDic(data.selected);
+                    self.stopSound();
+                    Utils.blockUI();
+                    soundManager.setFilter(filterToInt());
+                    Utils.unblockUI();
                 });
             });
+
+            this.getSortName = function () {
+                return sortName;
+            };
 
             var buildDictionaryTree = function (jsonText) {
                 var dic = new angularUI.TreeItems();
                 $.each(angular.fromJson(jsonText), function (ind, val) {
-                    var isLeaf = !Setup.isNullOrUndef(val.dict) && val.dict.length > 0;
+                    var isLeaf = !Utils.isNullOrUndef(val.dict) && val.dict.length > 0;
                     dic.add(ind, false, false, val.title, val.dict);
                     if (isLeaf) {
                         $.each(val.dict, function (ind2, ws) {
@@ -172,11 +184,13 @@ define('mobile.ui',
                             var tr = ws[2];
                             var wds = ws[3];
                             var name = ind + "." + eng;
-                            var treeItem = dic.add(name, false, true, eng);
-                            treeItem.prop.put('eng', eng);
-                            treeItem.prop.put('trans', Setup.toString(tr, ''));
-                            treeItem.prop.put('rus', Setup.toString(rus, ''));
-                            if (!isNullOrUndef(wds)) {
+                            var treeItem = dic.add(name, false, true, self.escapeSymbol(eng));
+                            treeItem.prop.put('src-eng', eng);
+                            treeItem.prop.put('eng', self.escapeSymbol(eng));
+                            treeItem.prop.put('trans', Utils.toString(tr, ''));
+                            treeItem.prop.put('src-rus', Utils.toString(rus, ''));
+                            treeItem.prop.put('rus', self.escapeSymbol(Utils.toString(rus, '')));
+                            if (!Utils.isNullOrUndef(wds)) {
                                 var words = [];
                                 $.each(wds.split(','), function (ind3, w) {
                                     words.push({word: w.trim().toLowerCase()});
@@ -204,7 +218,7 @@ define('mobile.ui',
             };
 
             this.updateDictionary = function () {
-                if (!Setup.isNullOrUndef(self.dic)) {
+                if (!Utils.isNullOrUndef(self.dic)) {
                     $.each(self.dic.getItems(), function (ind, item) {
                         item.selected = configuration.getData().wordID.indexOf(item.name) != -1;
                     });
@@ -218,6 +232,9 @@ define('mobile.ui',
                     });
                     $rootScope.$broadcast("appUIApp.check.playRusID.get", function (data) {
                         configuration.getData().playRusID.sel = data.selected;
+                    });
+                    $rootScope.$broadcast("appUIApp.check.playDicID.get", function (data) {
+                        configuration.setPlayDic(data.selected);
                     });
                     $rootScope.$broadcast("appUIApp.radio.pronID.get", function (data) {
                         configuration.getData().pronID.sel = data.selected;
@@ -287,6 +304,9 @@ define('mobile.ui',
                     });
                     $rootScope.$broadcast("appUIApp.check.playRusID.init", {
                         item: {title: ['yes', 'no'], selected: configuration.getData().playRusID.sel}
+                    });
+                    $rootScope.$broadcast("appUIApp.check.playDicID.init", {
+                        item: {title: ['yes', 'no'], selected: configuration.isPlayDic()}
                     });
                     $rootScope.$broadcast("appUIApp.select.delayEngEngID.init", {
                         items: [{value: 0, label: 'Delay 0s'},
@@ -381,7 +401,7 @@ define('mobile.ui',
                         }
                     });
                 });
-                unblockUI();
+                Utils.unblockUI();
             };
 
             this.initDictionaryWidgets = function () {
@@ -398,6 +418,13 @@ define('mobile.ui',
                             title: ['', ''],
                             css: ['play-ua', 'play-ua-no'],
                             selected: configuration.getData().playRusID.sel
+                        }
+                    });
+                    $rootScope.$broadcast("appUIApp.check.playDicDicID.init", {
+                        item: {
+                            title: ['', ''],
+                            css: ['play-dic', 'play-dic-no'],
+                            selected: configuration.isPlayDic()
                         }
                     });
                     var prons = new Hashtable();
@@ -427,30 +454,32 @@ define('mobile.ui',
 
                         var eng = item.prop.get('eng');
                         var rus = item.prop.get('rus');
+                        var src_eng = item.prop.get('src-eng');
+                        var src_rus = item.prop.get('src-rus');
                         var traceID = 'trace.' + item.name + '.ID';
                         var jumpID = 'jump.' + item.name + '.ID';
                         var delay = cnf.delayEngEngID.sel;
 
-                        var src = new FileManager().resolveFilePath('br/' + eng + '.mp3', configuration.getData().dicDirID.sel);
+                        var src = new FileManager().resolveFilePath('br/' + src_eng + '.mp3', configuration.getData().dicDirID.sel);
                         var source = new sound.Source(1, src, traceID, jumpID, delay);
                         item.prop.put('source-br', source);
                         sources.push(source);
 
-                        src = new FileManager().resolveFilePath('am/' + eng + '.mp3', configuration.getData().dicDirID.sel);
+                        src = new FileManager().resolveFilePath('am/' + src_eng + '.mp3', configuration.getData().dicDirID.sel);
                         source = new sound.Source(2, src, traceID, jumpID, delay);
                         sources.push(source);
                         item.prop.put('source-am', source);
 
-                        src = new FileManager().resolveFilePath('ru/' + rus + '.mp3', cnf.dicDirID.sel);
+                        src = new FileManager().resolveFilePath('ru/' + src_rus + '.mp3', cnf.dicDirID.sel);
                         delay = cnf.delayEngRusID.sel;
                         source = new sound.Source(4, src, traceID, jumpID, delay);
                         sources.push(source);
                         item.prop.put('source-ru', source);
                         item.prop.put('showrus', cnf.showRusID.sel);
-                        var wds = item.prop.get('wds')
-                        if (!isNullOrUndef(wds)) {
-                            $.each(wds, function(ind2, wd) {
-                                wd['id'] = 'wordplay2ID'+uniqIndex++;
+                        var wds = item.prop.get('wds');
+                        if (!Utils.isNullOrUndef(wds)) {
+                            $.each(wds, function (ind2, wd) {
+                                wd['id'] = 'wordplay2ID' + uniqIndex++;
                                 src = new FileManager().resolveFilePath('br/' + wd.word + '.mp3', configuration.getData().dicDirID.sel);
                                 wd['source-br'] = new sound.Source(8, src, 'span' + wd.id, wd.id, delay);
                                 mapSources.put(item.name + '.' + wd.word, item);
@@ -477,7 +506,7 @@ define('mobile.ui',
                 soundManager.setFilter(filterToInt());
                 soundManager.setSpeed(cnf.speedID.sel);
                 soundManager.setSources(sources);
-                unblockUI();
+                Utils.unblockUI();
             };
 
             this.sortDictionary = function (sources, soundItems) {
@@ -507,11 +536,11 @@ define('mobile.ui',
             }
 
             this.openSetup = function (injector) {
-                blockUI()
+                Utils.blockUI()
                 $callStack.reset();
                 $callStack.addFn('updateDictionary', self.updateDictionary);
                 $callStack.addFn('initSetupWidgets', self.initSetupWidgets);
-                setTimeout(function() {
+                setTimeout(function () {
                     $injector = injector;
                     $callStack.next();
                 }, 500);
@@ -522,11 +551,11 @@ define('mobile.ui',
             };
 
             this.openDictionary = function (injector) {
-                blockUI();
+                Utils.blockUI();
                 $callStack.reset();
                 $callStack.addFn('updateDictionary', self.updateDictionary);
                 $callStack.addFn('initDictionaryWidgets', self.initDictionaryWidgets);
-                setTimeout(function() {
+                setTimeout(function () {
                     $injector = injector;
                     $callStack.next();
                 }, 500);
@@ -536,8 +565,18 @@ define('mobile.ui',
                 self.stopSound();
             };
 
+            this.escapeSymbol = function (text) {
+                return text
+                    .replace(new RegExp("[_]", 'g'), ' ')
+                    .replace(new RegExp("@0095", 'g'), '_')
+                    .replace(new RegExp("@0046", 'g'), '.')
+                    .replace(new RegExp("@0039", 'g'), '')
+                    .replace(new RegExp("@0044", 'g'), ',')
+                    .replace(new RegExp("@0063", 'g'), '?');
+            };
+
             this.stopSound = function () {
-                if (!isNullOrUndef(currentPlayID)) {
+                if (!Utils.isNullOrUndef(currentPlayID)) {
                     $injector.invoke(function ($rootScope) {
                         $rootScope.$broadcast("appUIApp.enum." + currentPlayID + ".set", {
                             selected: 0
@@ -545,7 +584,7 @@ define('mobile.ui',
                     });
                 }
                 soundManager.stop();
-                if (!isNullOrUndef(soundListener)) {
+                if (!Utils.isNullOrUndef(soundListener)) {
                     soundListener(this.getStateSound());
                 }
             };
@@ -591,8 +630,18 @@ define('mobile.ui',
                             selected: 1
                         });
                     });
-                    var source = mapSources.get(name).prop.get('source-' + configuration.getData().pronID.sel);
-                    soundManager.setSources([source]);
+                    var sources = [];
+                    var item = mapSources.get(name);
+                    var source = item.prop.get('source-' + configuration.getData().pronID.sel);
+                    sources.push(source);
+                    var words = item.prop.get('wds');
+                    if (!Utils.isNullOrUndef(words) && words.length > 0) {
+                        $.each(words, function(ind, item) {
+                            var source = item['source-' + configuration.getData().pronID.sel];
+                            sources.push(source);
+                        });
+                    }
+                    soundManager.setSources(sources);
                     soundManager.play();
                 } else {
                     self.stopSound.apply(self);
@@ -600,17 +649,21 @@ define('mobile.ui',
                 }
             };
 
-            this.playWord2 = function (id, item) {
-                    self.stopSound.apply(self);
-                    currentPlayID = id;
-                    $injector.invoke(function ($rootScope) {
-                        $rootScope.$broadcast("appUIApp.enum." + currentPlayID + ".set", {
-                            selected: 1
-                        });
+            this.playWord2 = function (id, items) {
+                self.stopSound.apply(self);
+                currentPlayID = id;
+                $injector.invoke(function ($rootScope) {
+                    $rootScope.$broadcast("appUIApp.enum." + currentPlayID + ".set", {
+                        selected: 1
                     });
+                });
+                var sources = [];
+                $.each(items, function(ind, item) {
                     var source = item['source-' + configuration.getData().pronID.sel];
-                    soundManager.setSources([source]);
-                    soundManager.play();
+                    sources.push(source);
+                });
+                soundManager.setSources(sources);
+                soundManager.play();
             };
 
             $callStack.addFn('loadDictionary', this.loadDictionary);
@@ -627,6 +680,7 @@ define('mobile.ui',
             var $def = {
                 showRusID: {sel: true},
                 playRusID: {sel: true},
+                playDicID: {sel: false},
                 pronID: {sel: 'br'},
                 delayEngEngID: {sel: 0},
                 delayEngRusID: {sel: 0},
@@ -638,11 +692,11 @@ define('mobile.ui',
 
             var load = function () {
                 self.selected = localStorage.getItem('eng3000.configurations.selected');
-                if (isNullOrUndef(self.selected)) {
+                if (Utils.isNullOrUndef(self.selected)) {
                     self.selected = 'default';
                 }
                 var datas = localStorage.getItem('eng3000.configurations');
-                if (!isNullOrUndef(datas)) {
+                if (!Utils.isNullOrUndef(datas)) {
                     $datas = angular.fromJson(datas);
                 } else {
                     $datas = {};
@@ -668,8 +722,9 @@ define('mobile.ui',
                 //console.log('eng3000.store_setup.save: ' + angular.toJson($data));
             };
             this.add = function (name, data) {
-                if (isNullOrUndef(name)) {
+                if (Utils.isNullOrUndef(name) || name == '') {
                     openDialog('Configuration', 'The label can\'t be empty.');
+                    return;
                 }
                 if (name == 'default') {
                     openDialog('Configuration', 'The label can\'t be modified for default.');
@@ -694,7 +749,7 @@ define('mobile.ui',
                 return self.selected;
             };
             this.select = function (name) {
-                self.selected = isNullOrUndef(name) ? 'default' : name.toLowerCase();
+                self.selected = Utils.isNullOrUndef(name) ? 'default' : name.toLowerCase();
                 $datas[self.selected] = $.extend(true, {}, $def, $datas[self.selected]);
                 self.save();
                 load();
@@ -704,7 +759,7 @@ define('mobile.ui',
                 if (self.isDefault()) {
                     return;
                 }
-                if (!isNullOrUndef($datas[self.selected])) {
+                if (!Utils.isNullOrUndef($datas[self.selected])) {
                     delete $datas[self.selected];
                 }
                 return self.select('default');
@@ -714,7 +769,7 @@ define('mobile.ui',
             };
             this.getDicFile = function () {
                 var data = self.getData();
-                if (isNullOrUndef(data.dicFileID) || self.isDefault()) {
+                if (Utils.isNullOrUndef(data.dicFileID) || self.isDefault()) {
                     data.dicFileID = {sel: 'dictionary.json'}
                 }
                 return data.dicFileID.sel;
@@ -726,20 +781,33 @@ define('mobile.ui',
                 }
                 self.getData().dicFileID.sel = value;
             };
+            this.isPlayDic = function () {
+                var data = self.getData();
+                if (Utils.isNullOrUndef(data.playDicID)) {
+                    data.playDicID = {sel: false}
+                }
+                return data.playDicID.sel;
+            };
+            this.setPlayDic = function (value) {
+                self.getData().playDicID.sel = value;
+            };
         }
 
         appModule.controller('dictController', ['$scope', '$rootScope', function ($scope, $rootScope) {
             $scope.items = [];
             $scope.wds = function (item) {
                 var arrWord = item.prop.get('wds');
-                return isNullOrUndef(arrWord) || arrWord.length == 0 ? [] : arrWord;
+                return Utils.isNullOrUndef(arrWord) || arrWord.length == 0 ? [] : arrWord;
             };
-            $scope.play = function(playID, item, thisName) {
+            $scope.play = function (playID, item, thisName) {
                 event.stopPropagation();
                 var thisFn = eval(thisName);
-                thisFn.playWord2.call(thisFn, playID, item);
+                var items = $scope.wds(item);
+                if (items.length > 0) {
+                    thisFn.playWord2.call(thisFn, playID, items);
+                }
             };
-            $scope.ngShowDict = function(item) {
+            $scope.ngShowDict = function (item) {
                 return $scope.wds(item).length > 0;
             }
             $scope.ngChecked = function (item) {
@@ -755,29 +823,29 @@ define('mobile.ui',
                     configuration.getData().wordID.splice(i, 1);
                 }
                 var source = item.prop.get('source-br');
-                if (!isNullOrUndef(source)) {
+                if (!Utils.isNullOrUndef(source)) {
                     source.enabled = item.selected;
                 }
                 source = item.prop.get('source-am');
-                if (!isNullOrUndef(source)) {
+                if (!Utils.isNullOrUndef(source)) {
                     source.enabled = item.selected;
                 }
                 source = item.prop.get('source-ru');
-                if (!isNullOrUndef(source)) {
+                if (!Utils.isNullOrUndef(source)) {
                     source.enabled = item.selected;
                 }
                 configuration.save();
-                if (!isNullOrUndef($scope.fnselClick)) {
+                if (!Utils.isNullOrUndef($scope.fnselClick)) {
                     $scope.fnselClick(item);
                 }
             };
             $scope.ngShowRus = function (item) {
                 var show = item.prop.get('showrus');
-                return !isNullOrUndef(item.prop.get('showrus')) && show;
+                return !Utils.isNullOrUndef(item.prop.get('showrus')) && show;
             };
             $scope.ngShowTrans = function (item) {
                 var trans = item.prop.get('trans');
-                return !isNullOrUndef(trans) && trans != "";
+                return !Utils.isNullOrUndef(trans) && trans != "";
             };
             $rootScope.$on('dictController_init', function (event, data) {
                 $scope.fnselClick = data.ngSelClick;
@@ -796,19 +864,8 @@ define('mobile.ui',
             });
         }]);
 
-        function isNullOrUndef(arg) {
-            return (arg === null || arg === void (0));
-        };
-
-        Setup.isNullOrUndef = function (arg) {
-            return isNullOrUndef(arg);
-        };
-
-        Setup.toString = function (arg, def) {
-            return Setup.isNullOrUndef(arg) ? def : '' + arg;
-        };
-
         function openDialog(title, message) {
+            Utils.unblockUI();
             $(function () {
                 $("#dialog-message").text(message);
                 $("#dialog-message").attr('title', title);
@@ -824,6 +881,7 @@ define('mobile.ui',
         }
 
         function confirmOpenDialog(title, message, name, fn) {
+            Utils.unblockUI();
             var buttons = {
                 Cancel: function () {
                     $(this).dialog("close");
@@ -842,29 +900,6 @@ define('mobile.ui',
                     buttons: buttons
                 });
             });
-        }
-
-        function blockUI() {
-            setTimeout(function () {
-                $.blockUI({
-                    message:  '<span style="font-size: small">Please wait...</span>',
-                    css: {
-                        border: 'none',
-                        padding: '15px',
-                        backgroundColor: '#000',
-                        '-webkit-border-radius': '10px',
-                        '-moz-border-radius': '10px',
-                        opacity: .5,
-                        color: '#fff',
-                        'font-size': 'smaller',
-                        cursor: 'wait'
-                    }
-                });
-            }, 0);
-        }
-
-        function unblockUI() {
-            setTimeout($.unblockUI, 500);
         }
 
         return Setup;

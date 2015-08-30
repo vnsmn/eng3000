@@ -29,12 +29,14 @@
         </feature>
         <preference name="AndroidPersistentFileLocation" value="Internal" />
         <preference name="AndroidExtraFilesystems" value="files,files-external,documents,sdcard,cache,cache-external,root" />
+        <preference name="KeepRunning" value="true"/>
         <icon src="img/eng3000.png" density="hdpi" />
     </platform>
     <platform name="ios">
         <allow-intent href="itms:*" />
         <allow-intent href="itms-apps:*" />
     </platform>
+    <preference name="KeepRunning" value="true"/>
     <preference name="AndroidPersistentFileLocation" value="Internal" />
     <preference name="AndroidExtraFilesystems" value="files,files-external,documents,sdcard,cache,cache-external,root" />
 </widget>

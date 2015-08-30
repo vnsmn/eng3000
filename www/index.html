@@ -36,6 +36,9 @@
         <td id="tdPlayRusDicID">
             <check-dir id="playRusDicID"></check-dir>
         </td>
+        <td id="tdPlayDicDicID">
+            <check-dir id="playDicDicID"></check-dir>
+        </td>
         <td id="tdPronDicID">
             <enum-dir id='pronDicID'></enum-dir>
         </td>
@@ -80,7 +83,7 @@
             <td style="background-color: lightgrey;width:100%;cursor: pointer"
                 onclick="setup.stopSound()">
                 <a id='{{item2.id}}' name='{{item2.id}}' style="font-size: small" href="#"
-                   ng-click="play('playID', item2, 'setup')"
+                   ng-click="play('playID', item, 'setup')"
                    ng-repeat='item2 in wds(item) track by $index'><span name="span{{item2.id}}" style="color: black">{{item2.word}}  </span></a>
             </td>
         </tr>
@@ -101,6 +104,7 @@
             "mobile-file": "mobile.file-1.0",
             "mobile-synch": "mobile.synch-2.0",
             "mobile-sound": "mobile.sound-3.0",
+            "mobile-utils": "mobile.utils-1.0",
             "mobile.ui": "mobile.ui-3.0",
             "angular": "angular",
             "angular-logger": "angular-logger",
@@ -116,8 +120,8 @@
     });
 
     var setup = null;
-    require(["jquery", "mobile.ui", "angular", "mobile-file"],
-            function ($, Setup, angular, FileManager) {
+    require(["jquery", "mobile.ui", "angular", "mobile-file", "mobile-utils"],
+            function ($, Setup, angular, FileManager, Utils) {
 
                 $(document).ready(function () {
                     $(window).scroll(function () {
@@ -140,6 +144,7 @@
                                 $('#playID').hide();
                                 $('#tdShowRusDicID').hide();
                                 $('#tdPlayRusDicID').hide();
+                                $('#tdPlayDicDicID').hide();
                                 $('#tdPronDicID').hide();
                                 setup.closeDictionary();
                                 setup.openSetup(injector);
@@ -152,6 +157,7 @@
                                 $('#playID').show();
                                 $('#tdShowRusDicID').show();
                                 $('#tdPlayRusDicID').show();
+                                $('#tdPlayDicDicID').show();
                                 $('#tdPronDicID').show();
                             }
                         });
@@ -190,10 +196,10 @@
                         return;
                     }
                     var orientationType = screen.orientation.type;
-                    if (Setup.isNullOrUndef(orientationType)) {
+                    if (Utils.isNullOrUndef(orientationType)) {
                         orientationType = screen.orientation;
                     }
-                    if (Setup.isNullOrUndef(orientationType)) {
+                    if (Utils.isNullOrUndef(orientationType)) {
                         $("#tdInfoID").hide();
                         $("#tdSort1ID").hide();
                         $("#tdSort2ID").show();

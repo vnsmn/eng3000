@@ -129,6 +129,30 @@ span.label {
     cursor: pointer;
 }
 
+.play-dic {
+    background-image: url('../img/dictionary.png');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 100%;
+    display: inline;
+    float: left;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}
+
+.play-dic-no {
+    background-image: url('../img/dictionary-no.png');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 100%;
+    display: inline;
+    float: left;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}
+
 .corner-all-7 {
     border-bottom-left-radius: 7px;
     border-bottom-right-radius: 7px;
