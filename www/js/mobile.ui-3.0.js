@@ -96,9 +96,9 @@ define('mobile.ui',
                     $rootScope.$broadcast("appUIApp.enum.sort2ID.set", {
                         selected: sorts.get(data.selected)
                     });
-                    Utils.invokeLate(function () {
+                    Utils.invokeLate('sortID', function () {
                         return self.getSortName();
-                    }, reloadDictionaryWidget, 1000);
+                    }, reloadDictionaryWidget, 0);
                 });
                 $rootScope.$broadcast("appUIApp.enum.sort2ID.init", {
                     items: [
@@ -115,7 +115,7 @@ define('mobile.ui',
                     $rootScope.$broadcast("appUIApp.radio.sort1ID.set", {
                         selected: sortName
                     });
-                    Utils.invokeLate(function () {
+                    Utils.invokeLate('sortID', function () {
                         return self.getSortName();
                     }, reloadDictionaryWidget, 1000);
                 });

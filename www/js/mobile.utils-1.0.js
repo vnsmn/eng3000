@@ -1,23 +1,33 @@
 define('mobile-utils', ['jquery', 'block-ui'], function ($) {
+
     function Utils() {
     }
+
+    Utils.queue = new Hashtable();
 
     Utils.isNullOrUndef = function (arg) {
         return arg === null || arg === void (0);
     };
 
-    Utils.invokeLate = function(stateFn, fn, delay) {
+    Utils.invokeLate = function (label, stateFn, fn, delay) {
         var wrapper;
         var prevState = stateFn();
-        setTimeout(wrapper = function() {
-            var state = stateFn();
-            if (prevState == state) {
-                fn();
-            } else {
-                prevState = state;
-                setTimeout(wrapper, delay);
+        if (!Utils.isBlank(label)) {
+            if (Utils.queue.containsKey(label)) {
+                return;
             }
-        }, delay);
+            Utils.queue.put(label, fn);
+            setTimeout(wrapper = function () {
+                var state = stateFn();
+                if (prevState == state) {
+                    Utils.queue.remove(label);
+                    fn();
+                } else {
+                    prevState = state;
+                    setTimeout(wrapper, delay);
+                }
+            }, delay);
+        };
     };
 
     Utils.toString = function (arg, def) {
@@ -45,6 +55,10 @@ define('mobile-utils', ['jquery', 'block-ui'], function ($) {
 
     Utils.unblockUI = function () {
         setTimeout($.unblockUI, 500);
+    };
+
+    Utils.isBlank = function (s) {
+        return Utils.isNullOrUndef(s) || s.replace(new RegExp('[ ]+', 'g'), '').length == 0;
     };
 
     return Utils;
