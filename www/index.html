@@ -44,6 +44,7 @@
         </td>
         <td id="tdInfoID">
             <span id="infoID" style="font-size: smaller" ng-controller='infoController'>{{text}}</span>
+            <span id="info2ID" style="font-size: smaller" ng-controller='infoController'>{{duration}}</span>
         </td>
     </tr>
 </table>
@@ -109,11 +110,14 @@
             "angular": "angular",
             "angular-logger": "angular-logger",
             "angular-ui": "angular-ui",
-            "block-ui": "jquery.blockUI"
+            "block-ui": "jquery.blockUI",
+            "jquery-number": "jquery.numberformatter-1.2.4"
         },
         shim: {
             "angular": {
                 exports: "angular"
+            },
+            "jquery-number": {
             }
         },
         waitSeconds: 15

@@ -6,7 +6,8 @@ define('mobile.ui',
         "angular",
         "angular-ui",
         "mobile-file",
-        "mobile-utils"
+        "mobile-utils",
+        "jquery-number"
     ],
     function ($, UI, CallStack, sound, angular, angularUI, FileManager, Utils) {
         var appModule = angular.module("app", ['angUIApp']);
@@ -666,6 +667,18 @@ define('mobile.ui',
                 soundManager.play();
             };
 
+            var firstDate = new Date();
+            var lastDate = new Date();
+            setInterval(function() {
+                lastDate = new Date();
+                var diffDate = new Date(lastDate.getTime() - firstDate.getTime());
+                $injector.invoke(function ($rootScope) {
+                    $rootScope.$broadcast("infoController_init_duration", {
+                        duration: diffDate.getUTCHours() + ':' + diffDate.getUTCMinutes() + ':' + diffDate.getUTCSeconds()
+                    });
+                });
+            }, 1000);
+
             $callStack.addFn('loadDictionary', this.loadDictionary);
             $callStack.addFn('updateDictionary', this.updateDictionary, []);
             $callStack.addFn('initDictionaryWidgets', this.initDictionaryWidgets);
@@ -860,6 +873,10 @@ define('mobile.ui',
         appModule.controller('infoController', ['$scope', '$rootScope', function ($scope, $rootScope) {
             $rootScope.$on('infoController_init', function (event, data) {
                 $scope.text = data.text;
+                $scope.$apply();
+            });
+            $rootScope.$on('infoController_init_duration', function (event, data) {
+                $scope.duration = data.duration;
                 $scope.$apply();
             });
         }]);
