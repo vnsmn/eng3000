@@ -207,3 +207,22 @@ span.label {
     cursor: pointer;
 }
 
+.ic-done-all {
+    background-image: url('../img/ic_done_all.png');
+    background-repeat:no-repeat;
+    background-position: left top;
+    background-size: 30%;
+    display: inline;
+    float: left;
+    cursor: pointer;
+}
+
+.ic-done {
+    background-image: url('../img/ic_done.png');
+    background-repeat:no-repeat;
+    background-position: left top;
+    background-size: 30%;
+    display: inline;
+    float: left;
+    cursor: pointer;
+}

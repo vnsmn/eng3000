@@ -114,13 +114,18 @@ define('angular-ui',
                         };
                         $rootScope.$on(buildEventName("tree", $scope.tree.id, "init"), function (event, data) {
                             $scope.tree.items = data.items;
+                            if (data.fnSelect == null) {
+                                $scope.tree.fnSelect = null;
+                            } else if (!isNullOrUndef(data.fnSelect)) {
+                                $scope.tree.fnSelect = data.fnSelect;
+                            }
                             safeApply($scope);
                         });
                         $rootScope.$on(buildEventName("tree", $scope.tree.id, "get_items"), function (event, data) {
                             data.callback($scope.tree.items);
                         });
                         $rootScope.$on(buildEventName("tree", $scope.tree.id, "get"), function (event, data) {
-                            isNullAndUndef($scope.tree.focusedElement)
+                            //isNullAndUndef($scope.tree.focusedElement)
                             var name = $($scope.tree.focusedElement).prop("identificator");
                             data.callback(findItem($scope.tree, name));
                         });

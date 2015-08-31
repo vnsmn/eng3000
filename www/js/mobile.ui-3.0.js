@@ -167,6 +167,13 @@ define('mobile.ui',
                     soundManager.setFilter(filterToInt());
                     Utils.unblockUI();
                 });
+                $rootScope.$on("appUIApp.radio.treeCheckedID.selected", function (event, data) {
+                    configuration.setTreeChecked(data.selected);
+                    $rootScope.$broadcast("appUIApp.tree.wordID.init", {
+                        items: self.dic.getSortItems(),
+                        fnSelect: configuration.getTreeChecked() == 'y' ? 'selectFunction' : null
+                    });
+                });
             });
 
             this.getSortName = function () {
@@ -273,6 +280,9 @@ define('mobile.ui',
                     $rootScope.$broadcast("appUIApp.text.dicFileID.get", function (data) {
                         configuration.setDicFile(data.text);
                     });
+                    $rootScope.$broadcast("appUIApp.radio.treeCheckedID.get", function (data) {
+                        configuration.setTreeChecked(data.selected);
+                    });
                 });
                 configuration.save();
             };
@@ -295,8 +305,14 @@ define('mobile.ui',
                             callback: null
                         }
                     });
+                    $rootScope.$broadcast("appUIApp.radio.treeCheckedID.init", {
+                        items: [{name: 'y', title: 'yes', css: 'ic-done-all'},
+                            {name: 'n', title: 'no', css: 'ic-done'}],
+                        selected: configuration.getTreeChecked()
+                    });
                     $rootScope.$broadcast("appUIApp.tree.wordID.init", {
-                        items: self.dic.getSortItems()
+                        items: self.dic.getSortItems(),
+                        fnSelect: configuration.getTreeChecked() == 'y' ? 'selectFunction' : null
                     });
                     $rootScope.$broadcast("appUIApp.radio.pronID.init", {
                         items: [{name: 'am', title: 'am', css: 'flag-icon-us'}, {
@@ -707,6 +723,7 @@ define('mobile.ui',
                 playRusID: {sel: true},
                 playDicID: {sel: false},
                 pronID: {sel: 'br'},
+                treeCheckedID: {sel: 'y'},
                 delayEngEngID: {sel: 0},
                 delayEngRusID: {sel: 0},
                 speedID: {sel: 1.0},
@@ -815,6 +832,16 @@ define('mobile.ui',
             };
             this.setPlayDic = function (value) {
                 self.getData().playDicID.sel = value;
+            };
+            this.getTreeChecked = function () {
+                var data = self.getData();
+                if (Utils.isNullOrUndef(data.treeCheckedID)) {
+                    data.treeCheckedID = {sel: 'y'}
+                }
+                return data.treeCheckedID.sel;
+            };
+            this.setTreeChecked = function (value) {
+                self.getData().treeCheckedID.sel = value;
             };
         }
 
