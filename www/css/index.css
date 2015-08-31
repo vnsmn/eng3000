@@ -183,3 +183,27 @@ span.label {
     cursor: pointer;
 }
 
+.spellphrasedirect-down {
+    background-image: url('../img/ic_arrow_drop_down_24dp.png');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 100%;
+    display: block;
+    float: left;
+    width: 20px;
+    height: 10px;
+    cursor: pointer;
+}
+
+.spellphrasedirect-up {
+    background-image: url('../img/ic_arrow_drop_up_24dp.png');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 100%;
+    display: block;
+    float: left;
+    width: 20px;
+    height: 10px;
+    cursor: pointer;
+}
+

@@ -663,6 +663,16 @@ define('mobile.ui',
                 soundManager.play();
             };
 
+            this.spellPhraseDirect = function (id, sel, name) {
+                if (sel == 0) {
+                    $('p[direct="spell.direct.' + name + '"]').hide()
+                    $('a[spell="spell.' + name + '"]').css("display", 'inline');
+                } else {
+                    $('p[direct="spell.direct.' + name + '"]').show();
+                    $('a[spell="spell.' + name + '"]').css("display", 'block');
+                }
+            };
+
             var firstDate = new Date();
             var lastDate = new Date();
             setInterval(function () {
@@ -808,17 +818,27 @@ define('mobile.ui',
                 var arrWord = item.prop.get('wds');
                 return Utils.isNullOrUndef(arrWord) || arrWord.length == 0 ? [] : arrWord;
             };
-            $scope.play = function (playID, item, thisName) {
+            $scope.play = function (playID, item, item2, thisName) {
                 event.stopPropagation();
                 var thisFn = eval(thisName);
-                var items = $scope.wds(item);
+                var expand = false;
+                $rootScope.$broadcast("appUIApp.enum.spell.direct." + item.name + ".ID.get", function (data) {
+                    expand = data.selected == 1
+                });
+                var items;
+                if (expand) {
+                    items = [];
+                    items.push(item2);
+                } else {
+                    items = $scope.wds(item);
+                }
                 if (items.length > 0) {
                     thisFn.playWord2.call(thisFn, playID, items);
                 }
             };
             $scope.ngShowDict = function (item) {
                 return $scope.wds(item).length > 0;
-            }
+            };
             $scope.ngChecked = function (item) {
                 return item.selected;
             };

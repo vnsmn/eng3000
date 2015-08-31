@@ -81,10 +81,13 @@
         </tr>
         <tr ng-show="ngShowDict(item)">
             <td></td>
-            <td style="background-color: lightgrey;width:100%;cursor: pointer"
+            <td style="background-color: lightgrey;width:100%;cursor: pointer;display: block"
                 onclick="setup.stopSound()">
+                <enum-dir id="spell.direct.{{item.name}}.ID" name="{{item.name}}" callback="setup.spellPhraseDirect"
+                          init='[{"title":"", "css":"spellphrasedirect-up"},{"title":"", "css":"spellphrasedirect-down"}]'></enum-dir>
+                <p direct="spell.direct.{{item.name}}" style="display: none"></p>
                 <a id='{{item2.id}}' name='{{item2.id}}' style="font-size: small" href="#"
-                   ng-click="play('playID', item, 'setup')"
+                   ng-click="play('playID', item, item2, 'setup')" spell="spell.{{item.name}}"
                    ng-repeat='item2 in wds(item) track by $index'><span name="span{{item2.id}}" style="color: black">{{item2.word}}  </span></a>
             </td>
         </tr>
