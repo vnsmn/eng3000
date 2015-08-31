@@ -869,6 +869,13 @@ define('mobile.ui',
                 if (!Utils.isNullOrUndef(source)) {
                     source.enabled = item.selected;
                 }
+                var spellItems = $scope.wds(item);
+                $.each(spellItems, function(ind, spellItem){
+                    var source = spellItem['source-am'];
+                    source.enabled = item.selected;
+                    source = spellItem['source-br'];
+                    source.enabled = item.selected;
+                });
                 configuration.save();
                 if (!Utils.isNullOrUndef($scope.fnselClick)) {
                     $scope.fnselClick(item);
