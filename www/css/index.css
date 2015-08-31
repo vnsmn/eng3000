@@ -184,7 +184,7 @@ span.label {
 }
 
 .spellphrasedirect-down {
-    background-image: url('../img/ic_arrow_drop_down_24dp.png');
+    background-image: url('../img/ic_arrow_drop_down.png');
     background-repeat: no-repeat;
     background-position: center center;
     background-size: 100%;
@@ -196,7 +196,7 @@ span.label {
 }
 
 .spellphrasedirect-up {
-    background-image: url('../img/ic_arrow_drop_up_24dp.png');
+    background-image: url('../img/ic_arrow_drop_up.png');
     background-repeat: no-repeat;
     background-position: center center;
     background-size: 100%;
