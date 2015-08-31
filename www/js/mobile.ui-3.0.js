@@ -139,8 +139,11 @@ define('mobile.ui',
                     }
                 });
                 $rootScope.$on("appUIApp.select.conflistID.selected", function (event, data) {
+                    self.updateConfiguration();
                     configuration.select(data.selected);
-                    reloadSetup();
+                    setTimeout(function () {
+                        reloadSetup();
+                    }, 100);
                 });
                 $rootScope.$on("appUIApp.enum.pronDicID.selected", function (event, data) {
                     configuration.getData().pronID.sel = ['am', 'br'][data.selected];
@@ -467,11 +470,17 @@ define('mobile.ui',
                 var cnf = configuration.getData();
                 var allWordAmount = 0;
                 var uniqIndex = 0;
+                var serviceParents = $injector.get('getParents');
                 $.each(self.dic.getItems(), function (ind, item) {
+                    var upSelected = true;
                     if (item.leaf) {
                         allWordAmount++;
+                        var parents = serviceParents(item.name, self.dic.getItems());
+                        $.each(parents, function(ind, prnt) {
+                            upSelected &= prnt.selected;
+                        });
                     }
-                    if (item.selected && item.leaf) {
+                    if (upSelected && item.selected && item.leaf) {
                         soundItems.push(item);
                         mapSources.put(item.name, item);
 
