@@ -666,10 +666,16 @@ define('mobile.ui',
             this.spellPhraseDirect = function (id, sel, name) {
                 if (sel == 0) {
                     $('p[direct="spell.direct.' + name + '"]').hide()
-                    $('a[spell="spell.' + name + '"]').css("display", 'inline');
+                    var els = $('a[spell="spell.' + name + '"]');
+                    els.css("display", 'inline');
+                    els.css("font-size", 'small');
+                    els.css("line-height", '1.0');
                 } else {
                     $('p[direct="spell.direct.' + name + '"]').show();
-                    $('a[spell="spell.' + name + '"]').css("display", 'block');
+                    var els = $('a[spell="spell.' + name + '"]');
+                    els.css("display", 'block');
+                    els.css("font-size", 'large');
+                    els.css("line-height", '1.5');
                 }
             };
 
