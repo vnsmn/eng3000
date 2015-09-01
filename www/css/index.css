@@ -226,3 +226,27 @@ span.label {
     float: left;
     cursor: pointer;
 }
+
+.transcript {
+    background-image: url('../img/transcript.png');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 80%;
+    display: inline;
+    float: left;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}
+
+.transcript-no {
+    background-image: url('../img/transcript-no.png');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 80%;
+    display: inline;
+    float: left;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}

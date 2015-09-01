@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta name="viewport" content="user-scalable=no, initial-scale=1.0, width=device-width, height=device-height, target-densitydpi=device-dpi" />
     <script type="text/javascript" src="cordova.js"></script>
     <script type="text/javascript" src="cordova_plugins.js"></script>
     <script type="text/javascript" src="js/jquery-2.1.4.js"></script>
@@ -16,7 +17,7 @@
 </head>
 </head>
 <body style="display: none">
-<table id='menuID' style="border: 1px solid ghostwhite;background: ghostwhite;">
+<table id='menuID' style="border: 1px solid ghostwhite;background: ghostwhite">
     <tr>
         <td>
             <enum-dir id='playID'></enum-dir>
@@ -29,6 +30,9 @@
         </td>
         <td id='tdSort2ID'>
             <enum-dir id='sort2ID'></enum-dir>
+        </td>
+        <td id="tdShowTransDicID">
+            <check-dir id="showTransDicID"></check-dir>
         </td>
         <td id="tdShowRusDicID">
             <check-dir id="showRusDicID"></check-dir>
@@ -68,8 +72,8 @@
         </tr>
         <tr ng-show="ngShowTrans(item)">
             <td></td>
-            <td style="background-color: lightgrey;width:100%;cursor: pointer" onclick="setup.stopSound()">
-                <span>{{item.prop.get('trans')}}</span>
+            <td style="background-color: lightgrey;width:100%;font-size: small;cursor: pointer" onclick="setup.stopSound()">
+                <span>{{getTrans(item)}}</span>
             </td>
         </tr>
         <tr ng-show="ngShowRus(item)">
@@ -198,6 +202,7 @@
                     if (!isMobile) {
                         $("#tdSort2ID").hide();
                         $("#tdSort1ID").show();
+                        $("#tdShowTransDicID").show();
                         $("#tdInfoID").show();
                         scroll();
                         return;
@@ -209,6 +214,7 @@
                     if (Utils.isNullOrUndef(orientationType)) {
                         $("#tdInfoID").hide();
                         $("#tdSort1ID").hide();
+                        $("#tdShowTransDicID").hide();
                         $("#tdSort2ID").show();
                         scroll();
                         return;
@@ -217,10 +223,12 @@
                     if (isLandscape) {
                         $("#tdSort2ID").hide();
                         $("#tdSort1ID").show();
+                        $("#tdShowTransDicID").show();
                         $("#tdInfoID").show();
                     } else {
                         $("#tdInfoID").hide();
                         $("#tdSort1ID").hide();
+                        $("#tdShowTransDicID").hide();
                         $("#tdSort2ID").show();
                     }
                     scroll();

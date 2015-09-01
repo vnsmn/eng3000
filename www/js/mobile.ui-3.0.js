@@ -152,16 +152,21 @@ define('mobile.ui',
                     soundManager.setFilter(filterToInt());
                     Utils.unblockUI();
                 });
-                $rootScope.$on("appUIApp.check.showRusDicID.selected", function (event, data) {
-                    configuration.getData().showRusID.sel = data.selected;
-                    reloadDictionaryWidget();
-                });
                 $rootScope.$on("appUIApp.check.playRusDicID.selected", function (event, data) {
                     configuration.getData().playRusID.sel = data.selected;
                     self.stopSound();
                     Utils.blockUI();
                     soundManager.setFilter(filterToInt());
                     Utils.unblockUI();
+                });
+                $rootScope.$on("appUIApp.check.showRusDicID.selected", function (event, data) {
+                    configuration.getData().showRusID.sel = data.selected;
+                    configuration.save();
+                    reloadDictionaryWidget();
+                });
+                $rootScope.$on("appUIApp.check.showTransDicID.selected", function (event, data) {
+                    configuration.setShowTrans(data.selected);
+                    reloadDictionaryWidget();
                 });
                 $rootScope.$on("appUIApp.check.playDicDicID.selected", function (event, data) {
                     configuration.setPlayDic(data.selected);
@@ -203,7 +208,9 @@ define('mobile.ui',
                                 var treeItem = dic.add(name, false, true, Utils.escapeSymbol(eng));
                                 treeItem.prop.put('src-eng', eng);
                                 treeItem.prop.put('eng', Utils.escapeSymbol(eng));
-                                treeItem.prop.put('trans', Utils.toString(tr, ''));
+                                var trans = Utils.toString(tr, '').split('|');
+                                treeItem.prop.put('trans-am', Utils.toString(trans[0], ''));
+                                treeItem.prop.put('trans-br', Utils.toString(trans[1], ''));
                                 treeItem.prop.put('src-rus', Utils.toString(rus, ''));
                                 treeItem.prop.put('rus', Utils.escapeSymbol(Utils.toString(rus, '')));
                                 if (!Utils.isNullOrUndef(wds)) {
@@ -244,6 +251,9 @@ define('mobile.ui',
 
             this.updateConfiguration = function () {
                 $injector.invoke(function ($rootScope) {
+                    $rootScope.$broadcast("appUIApp.check.showTransID.get", function (data) {
+                        configuration.setShowTrans(data.selected);
+                    });
                     $rootScope.$broadcast("appUIApp.check.showRusID.get", function (data) {
                         configuration.getData().showRusID.sel = data.selected;
                     });
@@ -324,6 +334,9 @@ define('mobile.ui',
                             css: 'flag-icon-br'
                         }],
                         selected: configuration.getData().pronID.sel
+                    });
+                    $rootScope.$broadcast("appUIApp.check.showTransID.init", {
+                        item: {title: ['yes', 'no'], selected: configuration.isShowTrans()}
                     });
                     $rootScope.$broadcast("appUIApp.check.showRusID.init", {
                         item: {title: ['yes', 'no'], selected: configuration.getData().showRusID.sel}
@@ -439,6 +452,13 @@ define('mobile.ui',
                             selected: configuration.getData().showRusID.sel
                         }
                     });
+                    $rootScope.$broadcast("appUIApp.check.showTransDicID.init", {
+                        item: {
+                            title: ['', ''],
+                            css: ['transcript', 'transcript-no'],
+                            selected: configuration.isShowTrans()
+                        }
+                    });
                     $rootScope.$broadcast("appUIApp.check.playRusDicID.init", {
                         item: {
                             title: ['', ''],
@@ -508,6 +528,7 @@ define('mobile.ui',
                         sources.push(source);
                         item.prop.put('source-ru', source);
                         item.prop.put('showrus', cnf.showRusID.sel);
+                        item.prop.put('showtrans', configuration.isShowTrans());
                         var wds = item.prop.get('wds');
                         if (!Utils.isNullOrUndef(wds)) {
                             $.each(wds, function (ind2, wd) {
@@ -731,6 +752,7 @@ define('mobile.ui',
                 showRusID: {sel: true},
                 playRusID: {sel: true},
                 playDicID: {sel: false},
+                showTransID: {sel: true},
                 pronID: {sel: 'br'},
                 treeCheckedID: {sel: 'y'},
                 delayEngEngID: {sel: 0},
@@ -851,6 +873,18 @@ define('mobile.ui',
             };
             this.setTreeChecked = function (value) {
                 self.getData().treeCheckedID.sel = value;
+                self.save();
+            };
+            this.isShowTrans = function () {
+                var data = self.getData();
+                if (Utils.isNullOrUndef(data.showTransID)) {
+                    data.showTransID = {sel: true}
+                }
+                return data.showTransID.sel;
+            };
+            this.setShowTrans = function (value) {
+                self.getData().showTransID.sel = value;
+                self.save();
             };
         }
 
@@ -922,8 +956,17 @@ define('mobile.ui',
                 return !Utils.isNullOrUndef(item.prop.get('showrus')) && show;
             };
             $scope.ngShowTrans = function (item) {
-                var trans = item.prop.get('trans');
-                return !Utils.isNullOrUndef(trans) && trans != "";
+                var show = item.prop.get('showtrans');
+                return !Utils.isNullOrUndef(item.prop.get('showtrans')) && show;
+            };
+            $scope.ngShowTrans = function (item) {
+                var trans = item.prop.get('trans-' + configuration.getData().pronID.sel);
+                var show = item.prop.get('showtrans');
+                return !Utils.isNullOrUndef(trans) && trans != "" && !Utils.isNullOrUndef(show) && show;
+            };
+            $scope.getTrans = function (item) {
+                var trans = item.prop.get('trans-' + configuration.getData().pronID.sel);
+                return Utils.toString(trans, '');
             };
             $rootScope.$on('dictController_init', function (event, data) {
                 $scope.fnselClick = data.ngSelClick;
