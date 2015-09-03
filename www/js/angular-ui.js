@@ -269,7 +269,9 @@ define('angular-ui',
         function TreeItems() {
             this.items = [];
             this.sortItems = [];
+            this.sortItemsWithoutLeaf = [];
             var isSorted = false;
+            var self = this;
             this.add = function (treeItem) {
                 this.items.push(treeItem);
                 this.sortItems.push(treeItem);
@@ -277,22 +279,31 @@ define('angular-ui',
             };
             this.add = function (name, selected, leaf, title, dict) {
                 var treeItem = new TreeItem(name, selected, leaf, title, dict);
-                this.items.push(treeItem);
-                this.sortItems.push(treeItem);
+                self.items.push(treeItem);
+                self.sortItems.push(treeItem);
                 isSorted = false;
                 return treeItem;
             };
             this.getItems = function () {
-                return this.items;
+                return self.items;
             };
-            this.getSortItems = function () {
+            this.getSortItems = function (excludeLeaf) {
                 if (!isSorted) {
-                    this.sortItems.sort(function (a, b) {
+                    self.sortItems.sort(function (a, b) {
                         return a.name.localeCompare(b.name);
+                    });
+                    $.each(self.sortItems, function (ind, item) {
+                        if (!item.leaf) {
+                            self.sortItemsWithoutLeaf.push(item);
+                        }
                     });
                     isSorted = true;
                 }
-                return this.sortItems;
+                if (!isNullOrUndef(excludeLeaf) && excludeLeaf) {
+                    return self.sortItemsWithoutLeaf;
+                } else {
+                    return self.sortItems;
+                }
             };
         }
 

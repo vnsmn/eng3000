@@ -182,6 +182,10 @@ define('mobile.ui',
                         fnSelect: configuration.getTreeChecked() == 'y' ? 'selectFunction' : null
                     });
                 });
+                $rootScope.$on("appUIApp.check.showTreeID.selected", function (event, data) {
+                    configuration.setShowTree(data.selected);
+                    reloadSetup();
+                });
             });
 
             this.getSortName = function () {
@@ -223,6 +227,12 @@ define('mobile.ui',
                             });
                         }
                     }
+                });
+                $injector.invoke(function ($rootScope) {
+                    $rootScope.$broadcast("appUIApp.tree.wordID.init", {
+                        items: configuration.isShowTree() ? dic.getSortItems(false) : dic.getSortItems(true),
+                        fnSelect: configuration.getTreeChecked() == 'y' ? 'selectFunction' : null
+                    });
                 });
                 return dic;
             };
@@ -272,19 +282,15 @@ define('mobile.ui',
                     $rootScope.$broadcast("appUIApp.select.delayEngRusID.get", function (data) {
                         configuration.getData().delayEngRusID.sel = data.selected;
                     });
-                    $rootScope.$broadcast("appUIApp.tree.wordID.get_items", {
-                        callback: function (items) {
-                            configuration.getData().wordID = [];
-                            $.each(items, function (ind, item) {
-                                if (item.selected) {
-                                    configuration.getData().wordID.push(item.name);
-                                } else {
-                                    var i = configuration.getData().wordID.indexOf(item.name);
-                                    if (i != -1) {
-                                        configuration.getData().wordID.splice(i, i + 1);
-                                    }
-                                }
-                            });
+                    configuration.getData().wordID = [];
+                    $.each(self.dic.getItems(), function (ind, item) {
+                        if (item.selected) {
+                            configuration.getData().wordID.push(item.name);
+                        } else {
+                            var i = configuration.getData().wordID.indexOf(item.name);
+                            if (i != -1) {
+                                configuration.getData().wordID.splice(i, i + 1);
+                            }
                         }
                     });
                     $rootScope.$broadcast("appUIApp.text.dicDirID.get", function (data) {
@@ -296,6 +302,10 @@ define('mobile.ui',
                     $rootScope.$broadcast("appUIApp.radio.treeCheckedID.get", function (data) {
                         configuration.setTreeChecked(data.selected);
                     });
+                    $rootScope.$broadcast("appUIApp.check.showTreeID.get", function (data) {
+                        configuration.setShowTree(data.selected);
+                    });
+
                 });
                 configuration.save();
             };
@@ -323,10 +333,13 @@ define('mobile.ui',
                             {name: 'n', title: 'no', css: 'ic-done'}],
                         selected: configuration.getTreeChecked()
                     });
-                    $rootScope.$broadcast("appUIApp.tree.wordID.init", {
-                        items: self.dic.getSortItems(),
-                        fnSelect: configuration.getTreeChecked() == 'y' ? 'selectFunction' : null
+                    $rootScope.$broadcast("appUIApp.check.showTreeID.init", {
+                        item: {title: ['yes', 'no'], selected: configuration.isShowTree()}
                     });
+                    //$rootScope.$broadcast("appUIApp.tree.wordID.init", {
+                    //    items: self.dic.getSortItems(true),
+                    //    fnSelect: configuration.getTreeChecked() == 'y' ? 'selectFunction' : null
+                    //});
                     $rootScope.$broadcast("appUIApp.radio.pronID.init", {
                         items: [{name: 'am', title: 'am', css: 'flag-icon-us'}, {
                             name: 'br',
@@ -496,11 +509,13 @@ define('mobile.ui',
                     if (item.leaf) {
                         allWordAmount++;
                         var parents = serviceParents(item.name, self.dic.getItems());
-                        $.each(parents, function(ind, prnt) {
+                        $.each(parents, function (ind, prnt) {
                             upSelected &= prnt.selected;
                         });
                     }
-                    if (upSelected && item.selected && item.leaf) {
+                    //if (upSelected && item.selected && item.leaf) {
+                    var itemVisible = !configuration.isShowTree() || item.selected;
+                    if (upSelected && itemVisible && item.leaf) {
                         soundItems.push(item);
                         mapSources.put(item.name, item);
 
@@ -740,7 +755,6 @@ define('mobile.ui',
             $callStack.addFn('loadDictionary', this.loadDictionary);
             $callStack.addFn('updateDictionary', this.updateDictionary, []);
             $callStack.addFn('initDictionaryWidgets', this.initDictionaryWidgets);
-
             $callStack.next();
         }
 
@@ -755,6 +769,7 @@ define('mobile.ui',
                 showTransID: {sel: true},
                 pronID: {sel: 'br'},
                 treeCheckedID: {sel: 'y'},
+                showTreeID: {sel: false},
                 delayEngEngID: {sel: 0},
                 delayEngRusID: {sel: 0},
                 speedID: {sel: 1.0},
@@ -886,6 +901,17 @@ define('mobile.ui',
                 self.getData().showTransID.sel = value;
                 self.save();
             };
+            this.isShowTree = function () {
+                var data = self.getData();
+                if (Utils.isNullOrUndef(data.showTreeID)) {
+                    data.showTreeID = {sel: false}
+                }
+                return data.showTreeID.sel;
+            };
+            this.setShowTree = function (value) {
+                self.getData().showTreeID.sel = value;
+                self.save();
+            };
         }
 
         appModule.controller('dictController', ['$scope', '$rootScope', function ($scope, $rootScope) {
@@ -940,7 +966,7 @@ define('mobile.ui',
                     source.enabled = item.selected;
                 }
                 var spellItems = $scope.wds(item);
-                $.each(spellItems, function(ind, spellItem){
+                $.each(spellItems, function (ind, spellItem) {
                     var source = spellItem['source-am'];
                     source.enabled = item.selected;
                     source = spellItem['source-br'];

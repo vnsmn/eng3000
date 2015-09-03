@@ -35,8 +35,19 @@ define('mobile-utils', ['jquery', 'block-ui'], function ($) {
         return Utils.isNullOrUndef(arg) ? def : '' + arg;
     };
 
+
+
+    var queueBlockUI = [];
+
+    setInterval(function() {
+        if (queueBlockUI.length > 0) {
+            var fn = queueBlockUI.shift();
+            fn();
+        }
+    }, 1000);
+
     Utils.blockUI = function () {
-        setTimeout(function () {
+        queueBlockUI.push(function () {
             $.blockUI({
                 message: '<span style="font-size: small">Please wait...</span>',
                 css: {
@@ -51,11 +62,13 @@ define('mobile-utils', ['jquery', 'block-ui'], function ($) {
                     cursor: 'wait'
                 }
             });
-        }, 0);
+        });
     };
 
     Utils.unblockUI = function () {
-        setTimeout($.unblockUI, 500);
+        queueBlockUI.push(function () {
+            $.unblockUI();
+        });
     };
 
     Utils.isBlank = function (s) {
@@ -74,7 +87,7 @@ define('mobile-utils', ['jquery', 'block-ui'], function ($) {
 
     Utils.escapeSymbol = function (text) {
         var t = text;
-        $.each(Utils.escapeSymbols, function(ind, val) {
+        $.each(Utils.escapeSymbols, function (ind, val) {
             t = t.replace(new RegExp(val[0], 'g'), val[1]);
         });
         return t;
@@ -85,10 +98,10 @@ define('mobile-utils', ['jquery', 'block-ui'], function ($) {
             return;
         }
         var hset = new HashSet();
-        $.each(Utils.escapeSymbols, function(ind, val) {
+        $.each(Utils.escapeSymbols, function (ind, val) {
             hset.add(val[0]);
         });
-        $.each(escapes, function(ind, val) {
+        $.each(escapes, function (ind, val) {
             if (!hset.contains(val[0])) {
                 Utils.escapeSymbols.push(val);
             }
