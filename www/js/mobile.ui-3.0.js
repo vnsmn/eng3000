@@ -129,14 +129,24 @@ define('mobile.ui',
                     }
                 });
                 $rootScope.$on("appUIApp.tree.wordID.selected", function (event, data) {
-                    if (data.selected) {
-                        configuration.getData().wordID.push(data.item.name);
-                    } else {
-                        var i = configuration.getData().wordID.indexOf(data.item.name);
-                        if (i != -1) {
-                            configuration.getData().wordID.splice(i, 1);
-                        }
+                    var items = [data.item];
+                    if (!configuration.isShowTree() && configuration.getTreeChecked() == 'y') {
+                        var service = $injector.get('getChilds');
+                        items = items.concat(service(data.item.name, self.dic.getItems()));
                     }
+                    $.each(items, function(index, item) {
+                        if (data.selected) {
+                            configuration.getData().wordID.push(item.name);
+                        } else {
+                            var i = configuration.getData().wordID.indexOf(item.name);
+                            if (i != -1) {
+                                configuration.getData().wordID.splice(i, 1);
+                            }
+                        }
+                        if (item.selected != data.selected) {
+                            item.selected = data.selected;
+                        }
+                    });
                 });
                 $rootScope.$on("appUIApp.select.conflistID.selected", function (event, data) {
                     self.updateConfiguration();
@@ -178,7 +188,7 @@ define('mobile.ui',
                 $rootScope.$on("appUIApp.radio.treeCheckedID.selected", function (event, data) {
                     configuration.setTreeChecked(data.selected);
                     $rootScope.$broadcast("appUIApp.tree.wordID.init", {
-                        items: self.dic.getSortItems(),
+                        items: self.dic.getSortItems(!configuration.isShowTrans()),
                         fnSelect: configuration.getTreeChecked() == 'y' ? 'selectFunction' : null
                     });
                 });
