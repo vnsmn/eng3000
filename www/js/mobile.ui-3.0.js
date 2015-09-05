@@ -232,7 +232,9 @@ define('mobile.ui',
                                 if (!Utils.isNullOrUndef(ket2val.ws)) {
                                     var words = [];
                                     $.each(ket2val.ws.split(','), function (ind3, w) {
-                                        words.push({word: w.trim().toLowerCase()});
+                                        if (!Utils.isNullOrUndef(w) && w != "") {
+                                            words.push({word: w.trim().toLowerCase()});
+                                        }
                                     });
                                     treeItem.prop.put('wds', words);
                                 }
