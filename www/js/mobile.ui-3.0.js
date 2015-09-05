@@ -25,11 +25,16 @@ define('mobile.ui',
             var sortName = 'sortn';
             var soundListener;
 
+            var BIT_PLAY_BR = 1;
+            var BIT_PLAY_AM = 2;
+            var BIT_PLAY_RU = 4;
+            var BIT_PLAY_WS = 8;
+
             var filterToInt = function () {
                 var cnf = configuration.getData();
-                var i = cnf.pronID.sel == 'br' ? 1 : 2;
-                i += (cnf.playRusID.sel ? 4 : 0);
-                i += (configuration.isPlayDic() ? 8 : 0);
+                var i = cnf.pronID.sel == 'br' ? BIT_PLAY_BR : BIT_PLAY_AM;
+                i += (cnf.playRusID.sel ? BIT_PLAY_RU : 0);
+                i += (configuration.isPlayDic() ? BIT_PLAY_WS : 0);
                 return i;
             };
 
@@ -68,6 +73,7 @@ define('mobile.ui',
                             self.stopSound.apply(self);
                         }
                         currentPlayID = "playID";
+                        soundManager.setFilter(filterToInt());
                         soundManager.setSources(sources);
                         soundManager.play();
                     } else {
@@ -213,23 +219,19 @@ define('mobile.ui',
                         var isLeaf = !Utils.isNullOrUndef(val.dict) && val.dict.length > 0;
                         dic.add(ind, false, false, val.title, val.dict);
                         if (isLeaf) {
-                            $.each(val.dict, function (ind2, ws) {
-                                var eng = ws[0];
-                                var rus = ws[1];
-                                var tr = ws[2];
-                                var wds = ws[3];
-                                var name = ind + "." + eng;
-                                var treeItem = dic.add(name, false, true, Utils.escapeSymbol(eng));
-                                treeItem.prop.put('src-eng', eng);
-                                treeItem.prop.put('eng', Utils.escapeSymbol(eng));
-                                var trans = Utils.toString(tr, '').split('|');
+                            $.each(val.dict, function (ind2, ket2val) {
+                                var name = ind + "." + Utils.removeFileExt(ket2val.phe);
+                                var treeItem = dic.add(name, false, true, ket2val.en);
+                                treeItem.prop.put('src-eng', ket2val.phe);
+                                treeItem.prop.put('eng', ket2val.en);
+                                var trans = Utils.toString(ket2val.tr, '').split('|');
                                 treeItem.prop.put('trans-am', Utils.toString(trans[0], ''));
                                 treeItem.prop.put('trans-br', Utils.toString(trans[1], ''));
-                                treeItem.prop.put('src-rus', Utils.toString(rus, ''));
-                                treeItem.prop.put('rus', Utils.escapeSymbol(Utils.toString(rus, '')));
-                                if (!Utils.isNullOrUndef(wds)) {
+                                treeItem.prop.put('src-rus', Utils.toString(ket2val.phr, ''));
+                                treeItem.prop.put('rus', Utils.toString(ket2val.ru, ''));
+                                if (!Utils.isNullOrUndef(ket2val.ws)) {
                                     var words = [];
-                                    $.each(wds.split(','), function (ind3, w) {
+                                    $.each(ket2val.ws.split(','), function (ind3, w) {
                                         words.push({word: w.trim().toLowerCase()});
                                     });
                                     treeItem.prop.put('wds', words);
@@ -537,17 +539,17 @@ define('mobile.ui',
                         var jumpID = 'jump.' + item.name + '.ID';
                         var delay = cnf.delayEngEngID.sel;
 
-                        var src = new FileManager().resolveFilePath('br/' + src_eng + '.mp3', configuration.getData().dicDirID.sel);
+                        var src = new FileManager().resolveFilePath('br/' + src_eng, configuration.getData().dicDirID.sel);
                         var source = new sound.Source(1, src, traceID, jumpID, delay);
                         item.prop.put('source-br', source);
                         sources.push(source);
 
-                        src = new FileManager().resolveFilePath('am/' + src_eng + '.mp3', configuration.getData().dicDirID.sel);
+                        src = new FileManager().resolveFilePath('am/' + src_eng, configuration.getData().dicDirID.sel);
                         source = new sound.Source(2, src, traceID, jumpID, delay);
                         sources.push(source);
                         item.prop.put('source-am', source);
 
-                        src = new FileManager().resolveFilePath('ru/' + src_rus + '.mp3', cnf.dicDirID.sel);
+                        src = new FileManager().resolveFilePath('ru/' + src_rus, cnf.dicDirID.sel);
                         delay = cnf.delayEngRusID.sel;
                         source = new sound.Source(4, src, traceID, jumpID, delay);
                         sources.push(source);
@@ -709,6 +711,7 @@ define('mobile.ui',
                             sources.push(source);
                         });
                     }
+                    soundManager.setFilter(filterToInt());
                     soundManager.setSources(sources);
                     soundManager.play();
                 } else {
@@ -730,6 +733,7 @@ define('mobile.ui',
                     var source = item['source-' + configuration.getData().pronID.sel];
                     sources.push(source);
                 });
+                soundManager.setFilter(BIT_PLAY_WS);
                 soundManager.setSources(sources);
                 soundManager.play();
             };

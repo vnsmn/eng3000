@@ -91,7 +91,7 @@ define('mobile-utils', ['jquery', 'block-ui'], function ($) {
             t = t.replace(new RegExp(val[0], 'g'), val[1]);
         });
         return t;
-    };
+    }
 
     Utils.setEscapeSymbols = function (escapes) {
         if (Utils.isNullOrUndef(escapes)) {
@@ -106,6 +106,10 @@ define('mobile-utils', ['jquery', 'block-ui'], function ($) {
                 Utils.escapeSymbols.push(val);
             }
         });
+    };
+
+    Utils.removeFileExt = function (path) {
+        return path.substr(0, path.length - 4);
     };
 
     return Utils;
