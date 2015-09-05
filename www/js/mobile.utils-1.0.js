@@ -35,16 +35,16 @@ define('mobile-utils', ['jquery', 'block-ui'], function ($) {
         return Utils.isNullOrUndef(arg) ? def : '' + arg;
     };
 
-
-
     var queueBlockUI = [];
 
-    setInterval(function() {
-        if (queueBlockUI.length > 0) {
-            var fn = queueBlockUI.shift();
-            fn();
-        }
-    }, 1000);
+    function invokeQueue() {
+        setTimeout(function () {
+            if (queueBlockUI.length > 0) {
+                var fn = queueBlockUI.shift();
+                fn();
+            }
+        }, 0);
+    }
 
     Utils.blockUI = function () {
         queueBlockUI.push(function () {
@@ -63,12 +63,14 @@ define('mobile-utils', ['jquery', 'block-ui'], function ($) {
                 }
             });
         });
+        invokeQueue();
     };
 
     Utils.unblockUI = function () {
         queueBlockUI.push(function () {
             $.unblockUI();
         });
+        invokeQueue();
     };
 
     Utils.isBlank = function (s) {
