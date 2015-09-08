@@ -296,6 +296,9 @@ define('mobile.ui',
                     $rootScope.$broadcast("appUIApp.select.delayEngRusID.get", function (data) {
                         configuration.getData().delayEngRusID.sel = data.selected;
                     });
+                    $rootScope.$broadcast("appUIApp.select.delaySplitID.get", function (data) {
+                        configuration.setDelaySplit(data.selected);
+                    });
                     configuration.getData().wordID = [];
                     $.each(self.dic.getItems(), function (ind, item) {
                         if (item.selected) {
@@ -391,6 +394,15 @@ define('mobile.ui',
                             {value: 4, label: 'Delay 4s'},
                             {value: 5, label: 'Delay 5s'}],
                         selected: configuration.getData().delayEngRusID.sel
+                    });
+                    $rootScope.$broadcast("appUIApp.select.delaySplitID.init", {
+                        items: [{value: 0, label: 'Delay 0s'},
+                            {value: 1, label: 'Delay 1s'},
+                            {value: 2, label: 'Delay 2s'},
+                            {value: 3, label: 'Delay 3s'},
+                            {value: 4, label: 'Delay 4s'},
+                            {value: 5, label: 'Delay 5s'}],
+                        selected: configuration.getDelaySplit()
                     });
                     $rootScope.$broadcast("appUIApp.button.confaddID.init", {
                         item: {
@@ -540,6 +552,7 @@ define('mobile.ui',
                         var traceID = 'trace.' + item.name + '.ID';
                         var jumpID = 'jump.' + item.name + '.ID';
                         var delay = cnf.delayEngEngID.sel;
+                        var delaySplit = configuration.getDelaySplit();
 
                         var src = new FileManager().resolveFilePath('br/' + src_eng, configuration.getData().dicDirID.sel);
                         var source = new sound.Source(1, src, traceID, jumpID, delay);
@@ -563,10 +576,10 @@ define('mobile.ui',
                             $.each(wds, function (ind2, wd) {
                                 wd['id'] = 'wordplay2ID' + uniqIndex++;
                                 src = new FileManager().resolveFilePath('br/' + wd.word + '.mp3', configuration.getData().dicDirID.sel);
-                                wd['source-br'] = new sound.Source(8, src, 'span' + wd.id, wd.id, delay);
+                                wd['source-br'] = new sound.Source(8, src, 'span' + wd.id, wd.id, delaySplit);
                                 mapSources.put(item.name + '.' + wd.word, item);
                                 src = new FileManager().resolveFilePath('am/' + wd.word + '.mp3', configuration.getData().dicDirID.sel);
-                                wd['source-am'] = new sound.Source(8, src, 'span' + wd.id, wd.id, delay);
+                                wd['source-am'] = new sound.Source(8, src, 'span' + wd.id, wd.id, delaySplit);
                             });
                         }
                     }
@@ -788,6 +801,7 @@ define('mobile.ui',
                 showTreeID: {sel: false},
                 delayEngEngID: {sel: 0},
                 delayEngRusID: {sel: 0},
+                delaySplitID: {sel: 0},
                 speedID: {sel: 1.0},
                 dicDirID: {sel: ''},
                 dicFileID: {sel: 'dictionary.json'},
@@ -926,6 +940,17 @@ define('mobile.ui',
             };
             this.setShowTree = function (value) {
                 self.getData().showTreeID.sel = value;
+                self.save();
+            };
+            this.getDelaySplit = function () {
+                var data = self.getData();
+                if (Utils.isNullOrUndef(data.delaySplitID)) {
+                    data.delaySplitID = {sel: 0}
+                }
+                return data.delaySplitID.sel;
+            };
+            this.setDelaySplit = function (value) {
+                self.getData().delaySplitID.sel = value;
                 self.save();
             };
         }
