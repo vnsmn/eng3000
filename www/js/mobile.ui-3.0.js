@@ -233,7 +233,11 @@ define('mobile.ui',
                                     var words = [];
                                     $.each(ket2val.ws.split(','), function (ind3, w) {
                                         if (!Utils.isNullOrUndef(w) && w != "") {
-                                            words.push({word: w.trim().toLowerCase()});
+                                            var eng_rus = w.split('|');
+                                            words.push({
+                                                word: eng_rus[0].trim().toLowerCase(),
+                                                word_rus: eng_rus.length > 1 ? eng_rus[1].trim().toLowerCase() : ''
+                                            });
                                         }
                                     });
                                     treeItem.prop.put('wds', words);
@@ -760,12 +764,19 @@ define('mobile.ui',
                     els.css("display", 'inline');
                     els.css("font-size", 'small');
                     els.css("line-height", '1.0');
+                    els = $('span[spell="spell.rus.' + name + '"]');
+                    els.css("display", 'none');
+                    els.css("font-size", 'small');
                 } else {
+                    var isShowRus = configuration.getData().showRusID.sel;
                     $('p[direct="spell.direct.' + name + '"]').show();
                     var els = $('a[spell="spell.' + name + '"]');
                     els.css("display", 'block');
                     els.css("font-size", 'large');
                     els.css("line-height", '1.5');
+                    els = $('span[spell="spell.rus.' + name + '"]');
+                    els.css("display", isShowRus ? 'inline' : 'none');
+                    els.css("font-size", 'small');
                 }
             };
 

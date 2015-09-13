@@ -92,7 +92,10 @@
                 <p direct="spell.direct.{{item.name}}" style="display: none"></p>
                 <a id='{{item2.id}}' name='{{item2.id}}' style="font-size: small" href="#"
                    ng-click="play('playID', item, item2, 'setup')" spell="spell.{{item.name}}"
-                   ng-repeat='item2 in wds(item) track by $index'><span name="span{{item2.id}}" style="color: black">{{item2.word}}  </span></a>
+                   ng-repeat='item2 in wds(item) track by $index'>
+                    <span name="span{{item2.id}}" style="color: black">{{item2.word}}  </span>
+                    <span spell="spell.rus.{{item.name}}" style="color: darkslategrey; display: none"> {{item2.word_rus}}  </span>
+                </a>
             </td>
         </tr>
     </table>
